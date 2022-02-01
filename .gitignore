@@ -1,0 +1,4 @@
+#Ignore .o files
+*.o
+
+dwm
