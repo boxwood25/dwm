@@ -2137,6 +2137,11 @@ main(int argc, char *argv[])
 		die("pledge");
 #endif /* __OpenBSD__ */
 	scan();
+
+        /* start polybar */
+        // TODO This does not work for some reason, maybe it is executed too soon!
+        /* int status = system("~/.config/polybar/launch.sh"); */
+
 	run();
 	cleanup();
 	XCloseDisplay(dpy);
