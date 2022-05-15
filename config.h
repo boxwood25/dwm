@@ -49,6 +49,10 @@ static const Layout layouts[] = {
 	{ "[M]",      monocle },
 };
 
+/* custom function declarations */
+static void pulseaudioctl(const Arg *arg);
+static void backlight(const Arg *arg);
+
 /* key definitions */
 #define MODKEY Mod1Mask
 #define TAGKEYS(KEY,TAG) \
@@ -100,6 +104,11 @@ static Key keys[] = {
 	TAGKEYS(                        XK_8,                      7)
 	TAGKEYS(                        XK_9,                      8)
 	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
+        { Mod4Mask,                     XK_Up,     pulseaudioctl,  {"--volume-max 100 up"} },
+        { Mod4Mask,                     XK_Down,   pulseaudioctl,  {"down"} },
+        { Mod4Mask,                     XK_Space,  pulseaudioctl,  {"next-sink"},
+        { Mod4Mask,                     XK_Left,   backlight,      {0} },
+        { Mod4Mask,                     XK_Right,   backlight,      {1} },
 };
 
 /* button definitions */
@@ -119,3 +128,18 @@ static Button buttons[] = {
 	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
 };
 
+/* custom functions */
+void
+pulseaudioctl(const Arg *arg) {
+    char command[] = "pulseaudio-control " + *arg;
+    printf(command);
+    int status = system(command);
+}
+
+void
+backlight(const Arg *arg) {
+    int direction = *arg;
+    int currentvalue;
+    // TODO read current value from actualbrightness file
+    // TODO write new value into brightness file
+}
