@@ -107,6 +107,7 @@ static Key keys[] = {
         { Mod4Mask,                     XK_Up,     pulseaudioctl,  {"--volume-max 100 up"} },
         { Mod4Mask,                     XK_Down,   pulseaudioctl,  {"down"} },
         { Mod4Mask,                     XK_Space,  pulseaudioctl,  {"next-sink"},
+            /* TODO Make Windows + m or something be "pulseaudio-control togmute" */
         { Mod4Mask,                     XK_Left,   backlight,      {0} },
         { Mod4Mask,                     XK_Right,   backlight,      {1} },
 };
@@ -138,7 +139,7 @@ pulseaudioctl(const Arg *arg) {
 
 void
 backlight(const Arg *arg) {
-    int direction = *arg;
+    int direction = (int) *arg;
     int currentvalue;
     // TODO read current value from actualbrightness file
     // TODO write new value into brightness file
