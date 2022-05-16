@@ -104,12 +104,12 @@ static Key keys[] = {
 	TAGKEYS(                        XK_8,                      7)
 	TAGKEYS(                        XK_9,                      8)
 	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
-        { Mod4Mask,                     XK_Up,     pulseaudioctl,  {"--volume-max 100 up"} },
-        { Mod4Mask,                     XK_Down,   pulseaudioctl,  {"down"} },
-        { Mod4Mask,                     XK_Space,  pulseaudioctl,  {"next-sink"},
-            /* TODO Make Windows + m or something be "pulseaudio-control togmute" */
+        { Mod4Mask,                     XK_Up,     pulseaudioctl,  {1} },
+        { Mod4Mask,                     XK_Down,   pulseaudioctl,  {0} },
+        { Mod4Mask,                     XK_space,  pulseaudioctl,  {3} },
+        { Mod4Mask,                     XK_m,      pulseaudioctl,  {2} },
         { Mod4Mask,                     XK_Left,   backlight,      {0} },
-        { Mod4Mask,                     XK_Right,   backlight,      {1} },
+        { Mod4Mask,                     XK_Right,  backlight,      {1} },
 };
 
 /* button definitions */
@@ -132,14 +132,27 @@ static Button buttons[] = {
 /* custom functions */
 void
 pulseaudioctl(const Arg *arg) {
-    char command[] = "pulseaudio-control " + *arg;
-    printf(command);
-    int status = system(command);
+    int status;
+
+    switch(arg->i)
+    {
+        case 0:
+            status = system("pulseaudio-control down");
+        break;
+        case 1:
+            status = system("pulseaudio-control --volume-max 100 up");
+        break;
+        case 2:
+            status = system("pulseaudio-control togmute");
+        break;
+        default:
+            status = system("pulseaudio-control next-sink");
+    }
 }
 
 void
 backlight(const Arg *arg) {
-    int direction = (int) *arg;
+    int direction = arg->i;
     int currentvalue;
     // TODO read current value from actualbrightness file
     // TODO write new value into brightness file
