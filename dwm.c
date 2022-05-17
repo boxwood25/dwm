@@ -2139,8 +2139,11 @@ main(int argc, char *argv[])
 	scan();
 
         /* start polybar */
-        // TODO This does not work for some reason, maybe it is executed too soon!
-        /* int status = system("~/.config/polybar/launch.sh"); */
+        if(fork() == 0) {
+            sleep(1);
+            int status = system("~/.config/polybar/launch.sh");
+            exit(0);
+        }
 
 	run();
 	cleanup();
