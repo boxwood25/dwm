@@ -1527,8 +1527,8 @@ setup(void)
 	if (!drw_fontset_create(drw, fonts, LENGTH(fonts)))
 		die("no fonts could be loaded.");
 	lrpad = drw->fonts->h;
-        /* set bar height equal to the height specified in polybar's config.ini */
-        bh = 30;
+        /* set bar height based on the height specified in polybar's config.ini */
+        bh = 30 + 2 * borderpx;
 	updategeom();
 	/* init atoms */
 	utf8string = XInternAtom(dpy, "UTF8_STRING", False);
