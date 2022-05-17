@@ -30,10 +30,7 @@ static const Rule rules[] = {
 	/* class      instance    title       tags mask     isfloating   monitor */
 	{ "Gimp",     NULL,       NULL,       0,            1,           -1 },
 	/* { "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 }, */
-        { NULL,       NULL, "Desktop - Plasma", (1 << 9) - 1,  1,        -1 },
-        { "plasmashell", NULL,    NULL,       (1 << 9) - 1,  1,          -1 },
-        { "Plasma",   NULL,       NULL,       (1 << 9) - 1,  1,          -1 },
-        { NULL,       NULL, "plasma-desktop", (1 << 9) - 1,  1,          -1 },
+        { "ark",      NULL,       NULL,       0,            1,           -1 },
 };
 
 /* layout(s) */
