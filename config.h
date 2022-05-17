@@ -105,11 +105,15 @@ static Key keys[] = {
 	TAGKEYS(                        XK_9,                      8)
 	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
         { Mod4Mask,                     XK_Up,     pulseaudioctl,  {1} },
+        { Mod4Mask,                     XK_k,      pulseaudioctl,  {1} },
         { Mod4Mask,                     XK_Down,   pulseaudioctl,  {0} },
+        { Mod4Mask,                     XK_j,      pulseaudioctl,  {0} },
         { Mod4Mask,                     XK_space,  pulseaudioctl,  {3} },
         { Mod4Mask,                     XK_m,      pulseaudioctl,  {2} },
         { Mod4Mask,                     XK_Left,   backlight,      {0} },
+        { Mod4Mask,                     XK_h,      backlight,      {0} },
         { Mod4Mask,                     XK_Right,  backlight,      {1} },
+        { Mod4Mask,                     XK_l,      backlight,      {1} },
 };
 
 /* button definitions */
