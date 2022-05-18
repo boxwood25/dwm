@@ -31,6 +31,8 @@ static const Rule rules[] = {
 	{ "Gimp",     NULL,       NULL,       0,            1,           -1 },
 	/* { "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 }, */
         { "ark",      NULL,       NULL,       0,            1,           -1 },
+        { "kdeconnect", NULL,     NULL,       0,            1,           -1 },
+        { "ksysguard",  NULL,     NULL,       0,            1,           -1 },
 };
 
 /* layout(s) */
