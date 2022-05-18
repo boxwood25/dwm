@@ -2140,7 +2140,6 @@ main(int argc, char *argv[])
 
         /* start polybar */
         if(fork() == 0) {
-            // sleep(1);
             int status = system("~/.config/polybar/launch.sh");
             exit(0);
         }
