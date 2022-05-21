@@ -52,6 +52,7 @@ static const Layout layouts[] = {
 static void pulseaudioctl(const Arg *arg);
 static void backlight(const Arg *arg);
 static void dolphin(const Arg *arg);
+static void suspend(const Arg *arg);
 
 /* key definitions */
 #define MODKEY Mod1Mask
@@ -104,6 +105,7 @@ static Key keys[] = {
 	TAGKEYS(                        XK_8,                      7)
 	TAGKEYS(                        XK_9,                      8)
 	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
+        { Mod4Mask,                     XK_s,      suspend,        {0} },
         { Mod4Mask,                     XK_e,      dolphin,        {0} },
         { Mod4Mask,                     XK_Up,     pulseaudioctl,  {1} },
         { Mod4Mask,                     XK_k,      pulseaudioctl,  {1} },
@@ -169,4 +171,9 @@ dolphin(const Arg *arg) {
         int status = system("dolphin");
         exit(0);
     }
+}
+
+void
+suspend(const Arg *Arg) {
+    system("suspend");
 }
