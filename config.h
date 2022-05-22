@@ -175,5 +175,5 @@ dolphin(const Arg *arg) {
 
 void
 suspend(const Arg *Arg) {
-    system("suspend");
+    system("systemctl suspend && slock");
 }
