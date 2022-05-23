@@ -57,9 +57,11 @@ static void night(const Arg *arg);
 
 /* night mode */
 static int nightmode = 0;
-static const float nightcol[][3] = {
-        {1.0,       1.0,        1.0},
-        // TODO
+/* https://askubuntu.com/questions/1003101/how-to-use-xrandr-gamma-for-gnome-night-light-like-usage */
+static const char *nightcol[][3] = {
+        {"1",           "1",            "1"},
+        {"1",           "0.90198230",   "0.81465502"},
+        // TODO add more colors further down
 };
 
 /* key definitions */
@@ -202,11 +204,7 @@ night(const Arg *arg) {
             nightmode = 0;
     }
 
-    int max = 50;
-    char r[max], g[max], b[max];
-    //TODO create the string values of the floats
-
-    system("xgamma -rgamma " + nightcol[nightmode][0]);
-    system("xgamma -ggamma " + nightcol[nightmode][1]);
-    system("xgamma -bgamma " + nightcol[nightmode][2]);
+    system(strcat("xgamma -rgamma ", nightcol[nightmode][0]));
+    system(strcat("xgamma -ggamma ", nightcol[nightmode][1]));
+    system(strcat("xgamma -bgamma ", nightcol[nightmode][2]));
 }
