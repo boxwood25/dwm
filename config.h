@@ -60,8 +60,11 @@ static int nightmode = 0;
 /* https://askubuntu.com/questions/1003101/how-to-use-xrandr-gamma-for-gnome-night-light-like-usage */
 static const char *nightcol[][3] = {
         {"1",           "1",            "1"},
+        {"1",           "0.97107439",   "0.94305985"},
+        {"1",           "0.93853986",   "0.88130458"},
         {"1",           "0.90198230",   "0.81465502"},
-        // TODO add more colors further down
+        {"1",           "0.86860704",   "0.73688797"},
+        {"1",           "0.82854786",   "0.64816570"},
 };
 
 /* key definitions */
