@@ -65,6 +65,8 @@ static const char *nightcol[][3] = {
         {"1",           "0.90198230",   "0.81465502"},
         {"1",           "0.86860704",   "0.73688797"},
         {"1",           "0.82854786",   "0.64816570"},
+        {"1",           "0.77987699",   "0.54642268"},
+        {"1",           "0.71976951",   "0.42860152"},
 };
 
 /* key definitions */
@@ -154,21 +156,19 @@ static Button buttons[] = {
 /* custom functions */
 void
 pulseaudioctl(const Arg *arg) {
-    int status;
-
     switch(arg->i)
     {
         case 0:
-            status = system("pulseaudio-control down");
+            system("pulseaudio-control down");
         break;
         case 1:
-            status = system("pulseaudio-control --volume-max 100 up");
+            system("pulseaudio-control --volume-max 100 up");
         break;
         case 2:
-            status = system("pulseaudio-control togmute");
+            system("pulseaudio-control togmute");
         break;
         default:
-            status = system("pulseaudio-control next-sink");
+            system("pulseaudio-control next-sink");
     }
 }
 
@@ -183,7 +183,7 @@ backlight(const Arg *arg) {
 void
 dolphin(const Arg *arg) {
     if(fork() == 0) {
-        int status = system("dolphin");
+        system("dolphin");
         exit(0);
     }
 }
