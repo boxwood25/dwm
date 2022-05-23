@@ -53,6 +53,14 @@ static void pulseaudioctl(const Arg *arg);
 static void backlight(const Arg *arg);
 static void dolphin(const Arg *arg);
 static void suspend(const Arg *arg);
+static void night(const Arg *arg);
+
+/* night mode */
+static int nightmode = 0;
+static const float nightcol[][3] = {
+        {1.0,       1.0,        1.0},
+        // TODO
+};
 
 /* key definitions */
 #define MODKEY Mod1Mask
@@ -117,6 +125,8 @@ static Key keys[] = {
         { Mod4Mask,                     XK_h,      backlight,      {0} },
         { Mod4Mask,                     XK_Right,  backlight,      {1} },
         { Mod4Mask,                     XK_l,      backlight,      {1} },
+        { Mod4Mask,                     XK_n,      night,          {0} },
+        { Mod4Mask|ShiftMask,           XK_n,      night,          {1} },
 };
 
 /* button definitions */
@@ -174,6 +184,29 @@ dolphin(const Arg *arg) {
 }
 
 void
-suspend(const Arg *Arg) {
+suspend(const Arg *arg) {
     system("systemctl suspend && slock");
+}
+
+void
+night(const Arg *arg) {
+    int len = sizeof nightcol / sizeof nightcol[0];
+    if(arg->i == 0) {
+        nightmode++;
+        if(nightmode == len)
+            nightmode--;
+    }
+    else {
+        nightmode--;
+        if(nightmode < 0)
+            nightmode = 0;
+    }
+
+    int max = 50;
+    char r[max], g[max], b[max];
+    //TODO create the string values of the floats
+
+    system("xgamma -rgamma " + nightcol[nightmode][0]);
+    system("xgamma -ggamma " + nightcol[nightmode][1]);
+    system("xgamma -bgamma " + nightcol[nightmode][2]);
 }
