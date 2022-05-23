@@ -204,7 +204,11 @@ night(const Arg *arg) {
             nightmode = 0;
     }
 
-    system(strcat("xgamma -rgamma ", nightcol[nightmode][0]));
-    system(strcat("xgamma -ggamma ", nightcol[nightmode][1]));
-    system(strcat("xgamma -bgamma ", nightcol[nightmode][2]));
+    char rcmd[128], gcmd[128], bcmd[128];
+    strcpy(rcmd, "xgamma -rgamma ");
+    strcpy(gcmd, "xgamma -ggamma ");
+    strcpy(bcmd, "xgamma -bgamma ");
+    system(strcat(rcmd, nightcol[nightmode][0]));
+    system(strcat(gcmd, nightcol[nightmode][1]));
+    system(strcat(bcmd, nightcol[nightmode][2]));
 }
