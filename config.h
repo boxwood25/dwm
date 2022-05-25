@@ -190,7 +190,7 @@ dolphin(const Arg *arg) {
 
 void
 suspend(const Arg *arg) {
-    system("systemctl suspend && slock");
+    system("systemctl suspend; slock");
 }
 
 void
