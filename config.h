@@ -54,6 +54,7 @@ static void backlight(const Arg *arg);
 static void dolphin(const Arg *arg);
 static void suspend(const Arg *arg);
 static void night(const Arg *arg);
+static void nextwallpaper(const Arg *arg);
 
 /* night mode */
 static int nightmode = 0;
@@ -68,6 +69,9 @@ static const char *nightcol[][3] = {
         {"1",           "0.77987699",   "0.54642268"},
         {"1",           "0.71976951",   "0.42860152"},
 };
+
+/* wallpapers */
+static const char *wallpapers = "~/Pictures/more/wallpapers/Minimalistic-Wallpaper-Collection/images";
 
 /* key definitions */
 #define MODKEY Mod1Mask
@@ -134,6 +138,7 @@ static Key keys[] = {
         { Mod4Mask,                     XK_l,      backlight,      {1} },
         { Mod4Mask,                     XK_n,      night,          {0} },
         { Mod4Mask|ShiftMask,           XK_n,      night,          {1} },
+        { Mod4Mask,                     XK_w,      nextwallpaper,  {0} },
 };
 
 /* button definitions */
@@ -214,4 +219,11 @@ night(const Arg *arg) {
     system(strcat(rcmd, nightcol[nightmode][0]));
     system(strcat(gcmd, nightcol[nightmode][1]));
     system(strcat(bcmd, nightcol[nightmode][2]));
+}
+
+void
+nextwallpaper(const Arg *arg) {
+    char cmd[1024];
+    strcpy(cmd, "feh --bg-fill --randomize ");
+    system(strcat(cmd, wallpapers));
 }
