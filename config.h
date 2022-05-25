@@ -13,9 +13,10 @@ static const char col_gray3[]       = "#bbbbbb";
 static const char col_gray4[]       = "#eeeeee";
 static const char col_cyan[]        = "#005577";
 static const char col_green[]       = "#20ff30";
+static const char col_black[]       = "#000000";
 static const char *colors[][3]      = {
 	/*               fg         bg         border   */
-	[SchemeNorm] = { col_green, col_gray1, col_gray2 },
+	[SchemeNorm] = { col_green, col_gray1, col_black },
 	[SchemeSel]  = { col_gray1, col_green,  col_green  },
 };
 
@@ -86,7 +87,7 @@ static const char *wallpapers = "~/Pictures/more/wallpapers/Minimalistic-Wallpap
 
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
-static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_green, "-sf", col_gray1, NULL };
+static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_black, "-nf", col_gray3, "-sb", col_green, "-sf", col_black, NULL };
 static const char *termcmd[]  = { "st", NULL };
 
 static Key keys[] = {
