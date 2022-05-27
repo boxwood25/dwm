@@ -162,7 +162,6 @@ static void detach(Client *c);
 static void detachstack(Client *c);
 static Monitor *dirtomon(int dir);
 static void enternotify(XEvent *e);
-static void expose(XEvent *e);
 static void focus(Client *c);
 static void focusin(XEvent *e);
 static void focusmon(const Arg *arg);
@@ -217,7 +216,6 @@ static void unfocus(Client *c, int setfocus);
 static void unmanage(Client *c, int destroyed);
 static void unmapnotify(XEvent *e);
 static void updatebarpos(Monitor *m);
-static void updatebars(void);
 static void updateclientlist(void);
 static int updategeom(void);
 static void updatenumlockmask(void);
@@ -239,7 +237,7 @@ static const char broken[] = "broken";
 static char stext[256];
 static int screen;
 static int sw, sh;           /* X display screen geometry width, height */
-static int bh, blw = 0;      /* bar geometry */
+static int bh;      /* bar geometry */
 static int lrpad;            /* sum of left and right padding for text */
 static int (*xerrorxlib)(Display *, XErrorEvent *);
 static unsigned int numlockmask = 0;
@@ -250,7 +248,6 @@ static void (*handler[LASTEvent]) (XEvent *) = {
 	[ConfigureNotify] = configurenotify,
 	[DestroyNotify] = destroynotify,
 	[EnterNotify] = enternotify,
-	[Expose] = expose,
 	[FocusIn] = focusin,
 	[KeyPress] = keypress,
 	[MappingNotify] = mappingnotify,
@@ -419,7 +416,6 @@ void
 buttonpress(XEvent *e)
 {
 	unsigned int i, click;
-	Arg arg = {0};
 	Client *c;
 	Monitor *m;
 	XButtonPressedEvent *ev = &e->xbutton;
@@ -549,7 +545,6 @@ configurenotify(XEvent *e)
 		sh = ev->height;
 		if (updategeom() || dirty) {
 			drw_resize(drw, sw, bh);
-			updatebars();
 			for (m = mons; m; m = m->next) {
 				for (c = m->clients; c; c = c->next)
 					if (c->isfullscreen)
@@ -696,13 +691,6 @@ enternotify(XEvent *e)
 	} else if (!c || c == selmon->sel)
 		return;
 	focus(c);
-}
-
-void
-expose(XEvent *e)
-{
-	Monitor *m;
-	XExposeEvent *ev = &e->xexpose;
 }
 
 void
@@ -1507,8 +1495,6 @@ setup(void)
 	scheme = ecalloc(LENGTH(colors), sizeof(Clr *));
 	for (i = 0; i < LENGTH(colors); i++)
 		scheme[i] = drw_scm_create(drw, colors[i], 3);
-	/* init bars */
-	updatebars();
 	updatestatus();
 	/* supporting window for NetWMCheck */
 	wmcheckwin = XCreateSimpleWindow(dpy, root, 0, 0, 1, 1, 0, 0, 0);
@@ -1743,18 +1729,6 @@ unmapnotify(XEvent *e)
 		else
 			unmanage(c, 0);
 	}
-}
-
-void
-updatebars(void)
-{
-	Monitor *m;
-	XSetWindowAttributes wa = {
-		.override_redirect = True,
-		.background_pixmap = ParentRelative,
-		.event_mask = ButtonPressMask|ExposureMask
-	};
-	XClassHint ch = {"dwm", "dwm"};
 }
 
 void
@@ -1999,7 +1973,6 @@ wintomon(Window w)
 {
 	int x, y;
 	Client *c;
-	Monitor *m;
 
 	if (w == root && getrootptr(&x, &y))
 		return recttomon(x, y, 1, 1);
@@ -2073,7 +2046,7 @@ main(int argc, char *argv[])
 
         /* start polybar */
         if(fork() == 0) {
-            int status = system("~/.config/polybar/launch.sh");
+            system("~/.config/polybar/launch.sh");
             exit(0);
         }
 
