@@ -198,12 +198,18 @@ night(const Arg *arg) {
     if(arg->i == 0) {
         nightmode++;
         if(nightmode == len)
+        {
             nightmode--;
+            return;
+        }
     }
     else {
         nightmode--;
         if(nightmode < 0)
+        {
             nightmode = 0;
+            return;
+        }
     }
 
     char rcmd[128], gcmd[128], bcmd[128];
