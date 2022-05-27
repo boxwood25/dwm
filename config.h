@@ -34,6 +34,7 @@ static const Rule rules[] = {
         { "ark",      NULL,       NULL,       0,            1,           -1 },
         { "kdeconnect", NULL,     NULL,       0,            1,           -1 },
         /* { "ksysguard",  NULL,     NULL,       0,            1,           -1 }, */
+        { "kcalc",    NULL,       NULL,       0,            1,           -1 },
 };
 
 /* layout(s) */
