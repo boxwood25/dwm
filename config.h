@@ -57,6 +57,7 @@ static void dolphin(const Arg *arg);
 static void suspend(const Arg *arg);
 static void night(const Arg *arg);
 static void nextwallpaper(const Arg *arg);
+static void bluetooth(const Arg *arg);
 
 /* night mode */
 static int nightmode = 0;
@@ -134,6 +135,7 @@ static Key keys[] = {
         { Mod4Mask,                     XK_j,      pulseaudioctl,  {0} },
         { Mod4Mask,                     XK_space,  pulseaudioctl,  {3} },
         { Mod4Mask,                     XK_m,      pulseaudioctl,  {2} },
+        { Mod4Mask,                     XK_d,      bluetooth,      {0} },
         { Mod4Mask,                     XK_Left,   backlight,      {0} },
         { Mod4Mask,                     XK_h,      backlight,      {0} },
         { Mod4Mask,                     XK_Right,  backlight,      {1} },
@@ -226,4 +228,12 @@ nextwallpaper(const Arg *arg) {
     char cmd[1024];
     strcpy(cmd, "feh --bg-fill --randomize ");
     system(strcat(cmd, wallpapers));
+}
+
+void
+bluetooth(const Arg *arg) {
+    if(fork() == 0) {
+        system("DX7");
+        exit(0);
+    }
 }
