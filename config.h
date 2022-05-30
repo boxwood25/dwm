@@ -58,6 +58,7 @@ static void suspend(const Arg *arg);
 static void night(const Arg *arg);
 static void nextwallpaper(const Arg *arg);
 static void bluetooth(const Arg *arg);
+static void displayoff(const Arg *arg);
 
 /* night mode */
 static int nightmode = 0;
@@ -75,6 +76,9 @@ static const char *nightcol[][3] = {
 
 /* wallpapers */
 static const char wallpapers[] = "~/Pictures/more/wallpapers/Minimalistic-Wallpaper-Collection/images";
+
+/* display to optionally turn off */
+static const char optdisplay[] = "eDP";
 
 /* key definitions */
 #define MODKEY Mod1Mask
@@ -128,6 +132,7 @@ static Key keys[] = {
 	TAGKEYS(                        XK_9,                      8)
 	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
         { Mod4Mask,                     XK_s,      suspend,        {0} },
+        { Mod4Mask,                     XK_o,      displayoff,     {0} },
         { Mod4Mask,                     XK_e,      dolphin,        {0} },
         { Mod4Mask,                     XK_Up,     pulseaudioctl,  {1} },
         { Mod4Mask,                     XK_k,      pulseaudioctl,  {1} },
@@ -236,4 +241,12 @@ bluetooth(const Arg *arg) {
         system("DX7");
         exit(0);
     }
+}
+
+void
+displayoff(const Arg *arg) {
+    char cmd[128];
+    strcpy(cmd, "xrandr --output ");
+    strcat(cmd, optdisplay);
+    system(strcat(cmd, " --off"));
 }
