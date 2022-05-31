@@ -54,7 +54,7 @@ static const Layout layouts[] = {
 /* custom function declarations */
 static void pulseaudioctl(const Arg *arg);
 static void backlight(const Arg *arg);
-static void dolphin(const Arg *arg);
+static void exec(const Arg *arg);
 static void suspend(const Arg *arg);
 static void night(const Arg *arg);
 static void nextwallpaper(const Arg *arg);
@@ -140,7 +140,8 @@ static Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
         { Mod4Mask,                     XK_s,      suspend,        {0} },
         { Mod4Mask,                     XK_o,      displayoff,     {0} },
-        { Mod4Mask,                     XK_e,      dolphin,        {0} },
+        { Mod4Mask,                     XK_e,      exec,         {.v = "dolphin"} },
+        { Mod4Mask,                     XK_q,      exec,         {.v = "qutebrowser"} },
         { Mod4Mask,                     XK_Up,     pulseaudioctl,  {1} },
         { Mod4Mask,                     XK_k,      pulseaudioctl,  {1} },
         { Mod4Mask,                     XK_Down,   pulseaudioctl,  {0} },
@@ -194,9 +195,9 @@ backlight(const Arg *arg) {
 }
 
 void
-dolphin(const Arg *arg) {
+exec(const Arg *arg) {
     if(fork() == 0) {
-        system("dolphin");
+        system(arg->v);
         exit(0);
     }
 }
