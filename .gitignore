@@ -1,4 +1,7 @@
-#Ignore .o files
+# Ignore .o files
 *.o
 
 dwm
+
+# Ignore config.h, instead do customizations in config.def.h
+config.h
