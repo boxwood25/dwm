@@ -1,22 +1,24 @@
 /* See LICENSE file for copyright and license details. */
 
 /* appearance */
-static const unsigned int borderpx  = 1;        /* border pixel of windows */
+static const unsigned int borderpx  = 3;        /* border pixel of windows */
 static const int gappx     = 5;                 /* gaps between windows */
-static const unsigned int snap      = 32;       /* snap pixel */
+static const unsigned int snap      = 20;       /* snap pixel */
 static const int showbar            = 1;        /* 0 means no bar */
-static const int topbar             = 1;        /* 0 means bottom bar */
+static const int topbar             = 0;        /* 0 means bottom bar */
 static const char *fonts[]          = { "monospace:size=10" };
 static const char dmenufont[]       = "monospace:size=10";
-static const char col_gray1[]       = "#222222";
-static const char col_gray2[]       = "#444444";
+static const char col_gray1[]       = "#1f1f1f";
+static const char col_gray2[]       = "#282A2E";
 static const char col_gray3[]       = "#bbbbbb";
 static const char col_gray4[]       = "#eeeeee";
 static const char col_cyan[]        = "#005577";
+static const char col_green[]       = "#20ff30";
+static const char col_black[]       = "#000000";
 static const char *colors[][3]      = {
 	/*               fg         bg         border   */
-	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
-	[SchemeSel]  = { col_gray4, col_cyan,  col_cyan  },
+	[SchemeNorm] = { col_green, col_gray1, col_black },
+	[SchemeSel]  = { col_gray1, col_green,  col_green  },
 };
 
 /* tagging */
@@ -29,11 +31,15 @@ static const Rule rules[] = {
 	 */
 	/* class      instance    title       tags mask     isfloating   monitor */
 	{ "Gimp",     NULL,       NULL,       0,            1,           -1 },
-	{ "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 },
+	/* { "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 }, */
+        { "ark",      NULL,       NULL,       0,            1,           -1 },
+        { "kdeconnect", NULL,     NULL,       0,            1,           -1 },
+        /* { "ksysguard",  NULL,     NULL,       0,            1,           -1 }, */
+        { "kcalc",    NULL,       NULL,       0,            1,           -1 },
 };
 
 /* layout(s) */
-static const float mfact     = 0.55; /* factor of master area size [0.05..0.95] */
+static const float mfact     = 0.5; /* factor of master area size [0.05..0.95] */
 static const int nmaster     = 1;    /* number of clients in master area */
 static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
 static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
@@ -44,6 +50,36 @@ static const Layout layouts[] = {
 	{ "><>",      NULL },    /* no layout function means floating behavior */
 	{ "[M]",      monocle },
 };
+
+/* custom function declarations */
+static void pulseaudioctl(const Arg *arg);
+static void backlight(const Arg *arg);
+static void dolphin(const Arg *arg);
+static void suspend(const Arg *arg);
+static void night(const Arg *arg);
+static void nextwallpaper(const Arg *arg);
+static void bluetooth(const Arg *arg);
+static void displayoff(const Arg *arg);
+
+/* night mode */
+static int nightmode = 0;
+/* https://askubuntu.com/questions/1003101/how-to-use-xrandr-gamma-for-gnome-night-light-like-usage */
+static const char *nightcol[][3] = {
+        {"1",           "1",            "1"},
+        {"1",           "0.97107439",   "0.94305985"},
+        {"1",           "0.93853986",   "0.88130458"},
+        {"1",           "0.90198230",   "0.81465502"},
+        {"1",           "0.86860704",   "0.73688797"},
+        {"1",           "0.82854786",   "0.64816570"},
+        {"1",           "0.77987699",   "0.54642268"},
+        {"1",           "0.71976951",   "0.42860152"},
+};
+
+/* wallpapers */
+static const char wallpapers[] = "~/Pictures/more/wallpapers/Minimalistic-Wallpaper-Collection/images";
+
+/* display to optionally turn off */
+static const char optdisplay[] = "eDP";
 
 /* key definitions */
 #define MODKEY Mod1Mask
@@ -99,22 +135,122 @@ static Key keys[] = {
 	TAGKEYS(                        XK_8,                      7)
 	TAGKEYS(                        XK_9,                      8)
 	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
+        { Mod4Mask,                     XK_s,      suspend,        {0} },
+        { Mod4Mask,                     XK_o,      displayoff,     {0} },
+        { Mod4Mask,                     XK_e,      dolphin,        {0} },
+        { Mod4Mask,                     XK_Up,     pulseaudioctl,  {1} },
+        { Mod4Mask,                     XK_k,      pulseaudioctl,  {1} },
+        { Mod4Mask,                     XK_Down,   pulseaudioctl,  {0} },
+        { Mod4Mask,                     XK_j,      pulseaudioctl,  {0} },
+        { Mod4Mask,                     XK_space,  pulseaudioctl,  {3} },
+        { Mod4Mask,                     XK_m,      pulseaudioctl,  {2} },
+        { Mod4Mask,                     XK_d,      bluetooth,      {0} },
+        { Mod4Mask,                     XK_Left,   backlight,      {0} },
+        { Mod4Mask,                     XK_h,      backlight,      {0} },
+        { Mod4Mask,                     XK_Right,  backlight,      {1} },
+        { Mod4Mask,                     XK_l,      backlight,      {1} },
+        { Mod4Mask,                     XK_n,      night,          {0} },
+        { Mod4Mask|ShiftMask,           XK_n,      night,          {1} },
+        { Mod4Mask,                     XK_w,      nextwallpaper,  {0} },
 };
 
 /* button definitions */
-/* click can be ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle, ClkClientWin, or ClkRootWin */
+/* click can be ClkClientWin or ClkRootWin */
 static Button buttons[] = {
 	/* click                event mask      button          function        argument */
-	{ ClkLtSymbol,          0,              Button1,        setlayout,      {0} },
-	{ ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[2]} },
-	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
-	{ ClkStatusText,        0,              Button2,        spawn,          {.v = termcmd } },
 	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
 	{ ClkClientWin,         MODKEY,         Button2,        togglefloating, {0} },
 	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
-	{ ClkTagBar,            0,              Button1,        view,           {0} },
-	{ ClkTagBar,            0,              Button3,        toggleview,     {0} },
-	{ ClkTagBar,            MODKEY,         Button1,        tag,            {0} },
-	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
 };
 
+/* custom functions */
+void
+pulseaudioctl(const Arg *arg) {
+    switch(arg->i)
+    {
+        case 0:
+            system("pulseaudio-control down");
+        break;
+        case 1:
+            system("pulseaudio-control --volume-max 100 up");
+        break;
+        case 2:
+            system("pulseaudio-control togmute");
+        break;
+        default:
+            system("pulseaudio-control next-sink");
+    }
+}
+
+void
+backlight(const Arg *arg) {
+    int direction = arg->i;
+    int currentvalue;
+    // TODO read current value from actualbrightness file
+    // TODO write new value into brightness file
+}
+
+void
+dolphin(const Arg *arg) {
+    if(fork() == 0) {
+        system("dolphin");
+        exit(0);
+    }
+}
+
+void
+suspend(const Arg *arg) {
+    system("systemctl suspend; slock");
+}
+
+void
+night(const Arg *arg) {
+    int len = sizeof nightcol / sizeof nightcol[0];
+    if(arg->i == 0) {
+        nightmode++;
+        if(nightmode == len)
+        {
+            nightmode--;
+            return;
+        }
+    }
+    else {
+        nightmode--;
+        if(nightmode < 0)
+        {
+            nightmode = 0;
+            return;
+        }
+    }
+
+    char rcmd[128], gcmd[128], bcmd[128];
+    strcpy(rcmd, "xgamma -rgamma ");
+    strcpy(gcmd, "xgamma -ggamma ");
+    strcpy(bcmd, "xgamma -bgamma ");
+    system(strcat(rcmd, nightcol[nightmode][0]));
+    system(strcat(gcmd, nightcol[nightmode][1]));
+    system(strcat(bcmd, nightcol[nightmode][2]));
+}
+
+void
+nextwallpaper(const Arg *arg) {
+    char cmd[1024];
+    strcpy(cmd, "feh --bg-fill --randomize ");
+    system(strcat(cmd, wallpapers));
+}
+
+void
+bluetooth(const Arg *arg) {
+    if(fork() == 0) {
+        system("DX7");
+        exit(0);
+    }
+}
+
+void
+displayoff(const Arg *arg) {
+    char cmd[128];
+    strcpy(cmd, "xrandr --output ");
+    strcat(cmd, optdisplay);
+    system(strcat(cmd, " --off"));
+}
