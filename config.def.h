@@ -78,6 +78,9 @@ static const char *nightcol[][3] = {
 /* wallpapers */
 static const char wallpapers[] = "~/Pictures/more/wallpapers/Minimalistic-Wallpaper-Collection/images";
 
+/* bluetooth device to optionally connect to */
+static const char btdevice[] = "00:13:EF:A0:08:DC";
+
 /* display to optionally turn off */
 static const char optdisplay[] = "eDP";
 
@@ -242,7 +245,9 @@ nextwallpaper(const Arg *arg) {
 void
 bluetooth(const Arg *arg) {
     if(fork() == 0) {
-        system("DX7");
+        char cmd[64];
+        strcpy(cmd, "bluetoothctl power on && bluetoothctl connect ");
+        system(strcat(cmd, btdevice));
         exit(0);
     }
 }
