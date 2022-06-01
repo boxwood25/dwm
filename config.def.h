@@ -36,6 +36,7 @@ static const Rule rules[] = {
         { "kdeconnect", NULL,     NULL,       0,            1,           -1 },
         /* { "ksysguard",  NULL,     NULL,       0,            1,           -1 }, */
         { "kcalc",    NULL,       NULL,       0,            1,           -1 },
+        { "pulseaudio-equalizer-gtk", NULL, NULL, 0,        1,           -1 },
 };
 
 /* layout(s) */
