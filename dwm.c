@@ -878,7 +878,16 @@ grabkeys(void)
 void
 incnmaster(const Arg *arg)
 {
-	selmon->nmaster = MAX(selmon->nmaster + arg->i, 0);
+        int nm = MAX(selmon->nmaster + arg->i, 0);
+        /* Enforce 9 as the maximum for nmaster.
+         * The reason it is not even less than 9
+         * is vertical monitors.
+         * The reason to enforce it at all is
+         * so that there is no way to increase
+         * it to an absurd level, where
+         * derceasing it to a good level would
+         * take forever. */
+	selmon->nmaster = MIN(nm, 9);
 	arrange(selmon);
 }
 
