@@ -1632,17 +1632,17 @@ thirdtile(Monitor *m)
 	for (i = my = sy = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
 		if (i < m->nmaster) {
 			h = (m->wh - my) / (MIN(n, m->nmaster) - i);
-			resize(c, m->wx + sw, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
+			resize(c, m->wx + tw, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
 			if (my + HEIGHT(c) < m->wh)
 				my += HEIGHT(c);
 		} else if(i < m->nmaster + nsecond) {
 			h = (m->wh - sy) / (m->nmaster + nsecond - i);
-			resize(c, m->wx, m->wy + sy, sw - (2*c->bw), h - (2*c->bw), 0);
+			resize(c, m->wx + tw + mw, m->wy + sy, sw - (2*c->bw), h - (2*c->bw), 0);
 			if (sy + HEIGHT(c) < m->wh)
 				sy += HEIGHT(c);
 		} else {
 			h = (m->wh - ty) / (n - i);
-			resize(c, m->wx + sw + mw, m->wy + ty, tw - (2*c->bw), h - (2*c->bw), 0);
+			resize(c, m->wx, m->wy + ty, tw - (2*c->bw), h - (2*c->bw), 0);
 			if (ty + HEIGHT(c) < m->wh)
 				ty += HEIGHT(c);
                 }
