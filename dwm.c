@@ -1622,7 +1622,7 @@ thirdtile(Monitor *m)
 
         /* number of windows on the second area */
         nsecond = (n - m->nmaster) / 2;
-        sw = (m->ww - mw) / 2;
+        sw = nsecond ? (m->ww - mw) / 2 : 0;
         /* should be the same as sw,
          * or one pixel more due to rounding */
         tw = m->ww - mw - sw;
