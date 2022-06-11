@@ -207,6 +207,7 @@ static void sigchld(int unused);
 static void spawn(const Arg *arg);
 static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
+static void thirdtile(Monitor *);
 static void tile(Monitor *);
 static void togglebar(const Arg *arg);
 static void togglefloating(const Arg *arg);
@@ -1600,6 +1601,49 @@ tagmon(const Arg *arg)
 	if (!selmon->sel || !mons->next)
 		return;
 	sendmon(selmon->sel, dirtomon(arg->i));
+}
+
+void
+thirdtile(Monitor *m)
+{
+        /* sy and ty are second area y and third area y,
+         * same for sw and tw */
+	unsigned int i, n, nsecond, h, mw, my, sw, sy, tw, ty;
+	Client *c;
+
+	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
+	if (n == 0)
+		return;
+
+	if (n > m->nmaster)
+		mw = m->nmaster ? m->ww * m->mfact : 0;
+	else
+		mw = m->ww;
+
+        /* number of windows on the second area */
+        nsecond = (n - m->nmaster) / 2;
+        sw = (m->ww - mw) / 2;
+        /* should be the same as sw,
+         * or one pixel more due to rounding */
+        tw = m->ww - mw - sw;
+
+	for (i = my = sy = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
+		if (i < m->nmaster) {
+			h = (m->wh - my) / (MIN(n, m->nmaster) - i);
+			resize(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
+			if (my + HEIGHT(c) < m->wh)
+				my += HEIGHT(c);
+		} else if(i < m->nmaster + nsecond) {
+			h = (m->wh - sy) / (n - i);
+			resize(c, m->wx + mw, m->wy + ty, sw - (2*c->bw), h - (2*c->bw), 0);
+			if (sy + HEIGHT(c) < m->wh)
+				sy += HEIGHT(c);
+		} else {
+			h = (m->wh - ty) / (n - i);
+			resize(c, m->wx + mw + sw, m->wy + ty, tw - mw - (2*c->bw), h - (2*c->bw), 0);
+			if (ty + HEIGHT(c) < m->wh)
+				ty += HEIGHT(c);
+                }
 }
 
 void
