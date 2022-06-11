@@ -1636,7 +1636,7 @@ thirdtile(Monitor *m)
 			if (my + HEIGHT(c) < m->wh)
 				my += HEIGHT(c);
 		} else if(i < m->nmaster + nsecond) {
-			h = (m->wh - sy) / (nmaster + nsecond - i);
+			h = (m->wh - sy) / (m->nmaster + nsecond - i);
 			resize(c, m->wx + mw, m->wy + sy, sw - (2*c->bw), h - (2*c->bw), 0);
 			if (sy + HEIGHT(c) < m->wh)
 				sy += HEIGHT(c);
