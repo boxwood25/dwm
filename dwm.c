@@ -1622,6 +1622,8 @@ thirdtile(Monitor *m)
 
         /* number of windows on the second area */
         nsecond = (n - m->nmaster) / 2;
+        if(nsecond < 0)
+            nsecond = 0;
         sw = nsecond ? (m->ww - mw) / 2 : 0;
         /* should be the same as sw,
          * or one pixel more due to rounding */
@@ -1635,7 +1637,7 @@ thirdtile(Monitor *m)
 				my += HEIGHT(c);
 		} else if(i < m->nmaster + nsecond) {
 			h = (m->wh - sy) / (nmaster + nsecond - i);
-			resize(c, m->wx + mw, m->wy + ty, sw - (2*c->bw), h - (2*c->bw), 0);
+			resize(c, m->wx + mw, m->wy + sy, sw - (2*c->bw), h - (2*c->bw), 0);
 			if (sy + HEIGHT(c) < m->wh)
 				sy += HEIGHT(c);
 		} else {
