@@ -1624,6 +1624,9 @@ thirdtile(Monitor *m)
         nsecond = (n - m->nmaster) / 2;
         if(nsecond < 0)
             nsecond = 0;
+        if((n - m->nmaster) % 2 == 1)
+            /* always round up */
+            nsecond++;
         sw = nsecond ? (m->ww - mw) / 2 : 0;
         /* should be the same as sw,
          * or one pixel more due to rounding */
