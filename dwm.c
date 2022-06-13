@@ -1629,7 +1629,7 @@ thirdtile(Monitor *m)
                 nsecond++;
 
         if (n > m->nmaster + nsecond)
-                sw = nsecond ? (m->ww - mw) / 2 : 0;
+                sw = (m->ww - mw) / 2;
         else
                 sw = m->ww - mw;
         /* should be the same as sw,
