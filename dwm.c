@@ -113,7 +113,7 @@ typedef struct {
 
 struct Monitor {
 	char ltsymbol[16];
-	float mfact;
+	float mfact, sfact;
 	int nmaster;
 	int num;
 	int by;               /* bar geometry */
@@ -200,6 +200,7 @@ static void setfullscreen(Client *c, int fullscreen);
 static void setgaps(const Arg *arg);
 static void setlayout(const Arg *arg);
 static void setmfact(const Arg *arg);
+static void setsfact(const Arg *arg);
 static void setup(void);
 static void seturgent(Client *c, int urg);
 static void showhide(Client *c);
@@ -617,6 +618,7 @@ createmon(void)
 	m = ecalloc(1, sizeof(Monitor));
 	m->tagset[0] = m->tagset[1] = 1;
 	m->mfact = mfact;
+	m->sfact = sfact;
 	m->nmaster = nmaster;
 	m->showbar = showbar;
 	m->topbar = topbar;
@@ -1460,6 +1462,21 @@ setmfact(const Arg *arg)
 	arrange(selmon);
 }
 
+/* arg > 1.0 will set sfact absolutely */
+void
+setsfact(const Arg *arg)
+{
+	float f;
+
+	if (!arg || !selmon->lt[selmon->sellt]->arrange)
+		return;
+	f = arg->f < 1.0 ? arg->f + selmon->sfact : arg->f - 1.0;
+	if (f < 0.05 || f > 0.95)
+		return;
+	selmon->sfact = f;
+	arrange(selmon);
+}
+
 void
 setup(void)
 {
@@ -1632,8 +1649,7 @@ thirdtile(Monitor *m)
                 sw = (m->ww - mw) / 2;
         else
                 sw = m->ww - mw;
-        /* should be the same as sw,
-         * or one pixel more due to rounding */
+
         tw = m->ww - mw - sw;
 
 	for (i = my = sy = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
