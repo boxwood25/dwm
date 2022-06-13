@@ -1456,7 +1456,7 @@ setmfact(const Arg *arg)
 	if (!arg || !selmon->lt[selmon->sellt]->arrange)
 		return;
 	f = arg->f < 1.0 ? arg->f + selmon->mfact : arg->f - 1.0;
-	if (f < 0.05 || f > 0.95)
+	if (f < 0.05 || f > 0.9)
 		return;
 	selmon->mfact = f;
 	arrange(selmon);
@@ -1471,7 +1471,7 @@ setsfact(const Arg *arg)
 	if (!arg || !selmon->lt[selmon->sellt]->arrange)
 		return;
 	f = arg->f < 1.0 ? arg->f + selmon->sfact : arg->f - 1.0;
-	if (f < 0.05 || f > 0.95)
+	if (f < 0.05 || f > 0.9)
 		return;
 	selmon->sfact = f;
 	arrange(selmon);
@@ -1646,7 +1646,7 @@ thirdtile(Monitor *m)
                 nsecond++;
 
         if (n > m->nmaster + nsecond)
-                sw = (m->ww - mw) / 2;
+                sw = m->ww * m->sfact;
         else
                 sw = m->ww - mw;
 
