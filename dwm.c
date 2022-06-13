@@ -115,6 +115,7 @@ struct Monitor {
 	char ltsymbol[16];
 	float mfact, sfact;
 	int nmaster;
+        int symmetry;
 	int num;
 	int by;               /* bar geometry */
 	int mx, my, mw, mh;   /* screen size */
@@ -620,6 +621,7 @@ createmon(void)
 	m->mfact = mfact;
 	m->sfact = sfact;
 	m->nmaster = nmaster;
+        m->symmetry = symmetry;
 	m->showbar = showbar;
 	m->topbar = topbar;
 	m->gappx = gappx;
@@ -1456,8 +1458,11 @@ setmfact(const Arg *arg)
 	if (!arg || !selmon->lt[selmon->sellt]->arrange)
 		return;
 	f = arg->f < 1.0 ? arg->f + selmon->mfact : arg->f - 1.0;
-	if (f < 0.05 || f + selmon->sfact > 0.95)
-		return;
+        if(selmon->symmetry) {
+                if (f < 0.05 || f > 0.95)
+                        return;
+        }else if (f < 0.05 || f + selmon->sfact > 0.95)
+                        return;
 	selmon->mfact = f;
 	arrange(selmon);
 }
@@ -1645,8 +1650,12 @@ thirdtile(Monitor *m)
                 /* always round up */
                 nsecond++;
 
-        if (n > m->nmaster + nsecond)
-                sw = m->ww * m->sfact;
+        if (n > m->nmaster + nsecond) {
+                if(m->symmetry)
+                        sw = (m->ww - mw) / 2;
+                else
+                        sw = m->ww * m->sfact;
+        }
         else
                 sw = m->ww - mw;
 

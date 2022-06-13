@@ -40,8 +40,9 @@ static const Rule rules[] = {
 };
 
 /* layout(s) */
-static const float mfact     = 0.5; /* factor of master area size [0.05..0.95] */
-static const float sfact     = 0.25;/* factor of second area size [0.05..0.95] */
+static const float mfact     = 0.5;  /* factor of master area size [0.05..0.95] */
+static const float sfact     = 0.25; /* factor of second area size [0.05..0.95] */
+static const int symmetry    = 1;    /* use symmetrical setup instead of sfact */
 static const int nmaster     = 1;    /* number of clients in master area */
 static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
 static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
@@ -63,6 +64,7 @@ static void night(const Arg *arg);
 static void nextwallpaper(const Arg *arg);
 static void bluetooth(const Arg *arg);
 static void displayoff(const Arg *arg);
+static void togglesym(const Arg *arg);
 
 /* night mode */
 static int nightmode = 0;
@@ -116,6 +118,7 @@ static Key keys[] = {
 	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
 	{ MODKEY|ShiftMask,             XK_h,      setsfact,       {.f = -0.05} },
 	{ MODKEY|ShiftMask,             XK_l,      setsfact,       {.f = +0.05} },
+        { MODKEY,                       XK_s,      togglesym,      {0} },
 	{ MODKEY,                       XK_Return, zoom,           {0} },
 	{ MODKEY,                       XK_Tab,    view,           {0} },
 	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
@@ -265,4 +268,11 @@ displayoff(const Arg *arg) {
     strcpy(cmd, "xrandr --output ");
     strcat(cmd, optdisplay);
     system(strcat(cmd, " --off"));
+}
+
+void
+togglesym(const Arg *arg)
+{
+	selmon->symmetry = !selmon->symmetry;
+	arrange(selmon);
 }
