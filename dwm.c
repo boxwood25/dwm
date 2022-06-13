@@ -1458,11 +1458,12 @@ setmfact(const Arg *arg)
 	if (!arg || !selmon->lt[selmon->sellt]->arrange)
 		return;
 	f = arg->f < 1.0 ? arg->f + selmon->mfact : arg->f - 1.0;
-        if(selmon->symmetry) {
+        //TODO Make it do the other check only when in third layout without symmetry!!
+        //if(selmon->symmetry) {
                 if (f < 0.05 || f > 0.95)
                         return;
-        }else if (f < 0.05 || f + selmon->sfact > 0.95)
-                        return;
+        //}else if (f < 0.05 || f + selmon->sfact > 0.95)
+                        //return;
 	selmon->mfact = f;
 	arrange(selmon);
 }
