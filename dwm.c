@@ -1458,12 +1458,8 @@ setmfact(const Arg *arg)
 	if (!arg || !selmon->lt[selmon->sellt]->arrange)
 		return;
 	f = arg->f < 1.0 ? arg->f + selmon->mfact : arg->f - 1.0;
-        //TODO Make it do the other check only when in third layout without symmetry!!
-        //if(selmon->symmetry) {
                 if (f < 0.05 || f > 0.95)
                         return;
-        //}else if (f < 0.05 || f + selmon->sfact > 0.95)
-                        //return;
 	selmon->mfact = f;
 	arrange(selmon);
 }
@@ -1652,10 +1648,14 @@ thirdtile(Monitor *m)
                 nsecond++;
 
         if (n > m->nmaster + nsecond) {
-                if(m->symmetry)
+                if (m->symmetry)
                         sw = (m->ww - mw) / 2;
                 else
                         sw = m->ww * m->sfact;
+
+                /* make sure mw and sw do not take up
+                 * too much space */
+                mw = MIN(mw, 0.95 * m->ww - sw);
         }
         else
                 sw = m->ww - mw;
