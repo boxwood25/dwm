@@ -2,6 +2,7 @@
 
 /* appearance */
 static const unsigned int borderpx  = 3;        /* border pixel of windows */
+static const int gaps               = 1;        /* 0 means no gaps */
 static const int gappx              = 25;       /* gaps between windows */
 static const unsigned int snap      = 20;       /* snap pixel */
 static const int showbar            = 1;        /* 0 means no bar */
@@ -65,6 +66,8 @@ static void nextwallpaper(const Arg *arg);
 static void bluetooth(const Arg *arg);
 static void displayoff(const Arg *arg);
 static void togglesym(const Arg *arg);
+static void togglegaps(const Arg *arg);
+static void setgaps(const Arg *arg);
 
 /* night mode */
 static int nightmode = 0;
@@ -128,15 +131,15 @@ static Key keys[] = {
 	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[3]} },
 	{ MODKEY,                       XK_space,  setlayout,      {0} },
 	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
+	{ MODKEY,                       XK_minus,  setgaps,        {.i = -5 } },
+	{ MODKEY,                       XK_equal,  setgaps,        {.i = +5 } },
+	{ MODKEY,                       XK_g,      togglegaps,     {0} },
 	{ MODKEY,                       XK_0,      view,           {.ui = ~0 } },
 	{ MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
 	{ MODKEY,                       XK_comma,  focusmon,       {.i = -1 } },
 	{ MODKEY,                       XK_period, focusmon,       {.i = +1 } },
 	{ MODKEY|ShiftMask,             XK_comma,  tagmon,         {.i = -1 } },
 	{ MODKEY|ShiftMask,             XK_period, tagmon,         {.i = +1 } },
-	{ MODKEY,                       XK_minus,  setgaps,        {.i = -5 } },
-	{ MODKEY,                       XK_equal,  setgaps,        {.i = +5 } },
-	{ MODKEY|ShiftMask,             XK_equal,  setgaps,        {.i = 0  } },
 	TAGKEYS(                        XK_1,                      0)
 	TAGKEYS(                        XK_2,                      1)
 	TAGKEYS(                        XK_3,                      2)
@@ -274,5 +277,22 @@ void
 togglesym(const Arg *arg)
 {
 	selmon->symmetry = !selmon->symmetry;
+	arrange(selmon);
+}
+
+void
+togglegaps(const Arg *arg)
+{
+	selmon->gaps = !selmon->gaps;
+	arrange(selmon);
+}
+
+void
+setgaps(const Arg *arg)
+{
+	if (selmon->gappx + arg->i <= 0)
+                return;
+
+	selmon->gappx += arg->i;
 	arrange(selmon);
 }

@@ -120,6 +120,7 @@ struct Monitor {
 	int by;               /* bar geometry */
 	int mx, my, mw, mh;   /* screen size */
 	int wx, wy, ww, wh;   /* window area  */
+        int gaps;             /* use gaps, yes or no */
 	int gappx;            /* gaps between windows */
 	unsigned int seltags;
 	unsigned int sellt;
@@ -198,7 +199,6 @@ static void sendmon(Client *c, Monitor *m);
 static void setclientstate(Client *c, long state);
 static void setfocus(Client *c);
 static void setfullscreen(Client *c, int fullscreen);
-static void setgaps(const Arg *arg);
 static void setlayout(const Arg *arg);
 static void setmfact(const Arg *arg);
 static void setsfact(const Arg *arg);
@@ -211,6 +211,7 @@ static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
 static void thirdtile(Monitor *);
 static void tile(Monitor *);
+static void gaptile(Monitor *);
 static void togglebar(const Arg *arg);
 static void togglefloating(const Arg *arg);
 static void toggletag(const Arg *arg);
@@ -624,6 +625,7 @@ createmon(void)
         m->symmetry = symmetry;
 	m->showbar = showbar;
 	m->topbar = topbar;
+        m->gaps = gaps;
 	m->gappx = gappx;
 	m->lt[0] = &layouts[0];
 	m->lt[1] = &layouts[1 % LENGTH(layouts)];
@@ -1428,16 +1430,6 @@ setfullscreen(Client *c, int fullscreen)
 }
 
 void
-setgaps(const Arg *arg)
-{
-	if ((arg->i == 0) || (selmon->gappx + arg->i < 0))
-		selmon->gappx = 0;
-	else
-		selmon->gappx += arg->i;
-	arrange(selmon);
-}
-
-void
 setlayout(const Arg *arg)
 {
 	if (!arg || !arg->v || arg->v != selmon->lt[selmon->sellt])
@@ -1625,6 +1617,9 @@ tagmon(const Arg *arg)
 void
 thirdtile(Monitor *m)
 {
+	/* TODO make gapthirdtile function */
+
+
         /* sy and ty are second area y and third area y,
          * same for sw and tw */
 	unsigned int i, n, nsecond, h, mw, my, sw, sy, tw, ty;
@@ -1687,6 +1682,39 @@ thirdtile(Monitor *m)
 
 void
 tile(Monitor *m)
+{
+	if(m->gaps) {
+		gaptile(m);
+		return;
+	}
+
+
+	unsigned int i, n, h, mw, my, ty;
+	Client *c;
+
+	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
+	if (n == 0)
+		return;
+
+	if (n > m->nmaster)
+		mw = m->nmaster ? m->ww * m->mfact : 0;
+	else
+		mw = m->ww;
+	for (i = my = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
+		if (i < m->nmaster) {
+			h = (m->wh - my) / (MIN(n, m->nmaster) - i);
+			resize(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
+			if (my + HEIGHT(c) < m->wh)
+				my += HEIGHT(c);
+		} else {
+			h = (m->wh - ty) / (n - i);
+			resize(c, m->wx + mw, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
+			if (ty + HEIGHT(c) < m->wh)
+				ty += HEIGHT(c);
+		}
+}
+
+void gaptile(Monitor *m)
 {
         unsigned int i, n, h, mw, my, ty, ns;
 	Client *c;
