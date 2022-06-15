@@ -1634,8 +1634,16 @@ thirdtile(Monitor *m)
 	if (n == 0)
 		return;
 
-	if (n > m->nmaster)
+	if (n > m->nmaster) {
+                /* make sure master area and second area
+                 * on not take up too much space */
+                if (m->symmetry)
+                        m->mfact = MIN(m->mfact, 0.9);
+                else
+                        m->mfact = MIN(m->mfact, 0.95 - m->sfact);
+
 		mw = m->nmaster ? m->ww * m->mfact : 0;
+        }
 	else
 		mw = m->ww;
 
@@ -1652,10 +1660,6 @@ thirdtile(Monitor *m)
                         sw = (m->ww - mw) / 2;
                 else
                         sw = m->ww * m->sfact;
-
-                /* make sure mw and sw do not take up
-                 * too much space */
-                mw = MIN(mw, 0.95 * m->ww - sw);
         }
         else
                 sw = m->ww - mw;
