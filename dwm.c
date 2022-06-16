@@ -210,6 +210,7 @@ static void spawn(const Arg *arg);
 static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
 static void thirdtile(Monitor *);
+static void thirdgaptile(Monitor *);
 static void tile(Monitor *);
 static void gaptile(Monitor *);
 static void togglebar(const Arg *arg);
@@ -1608,7 +1609,10 @@ tagmon(const Arg *arg)
 void
 thirdtile(Monitor *m)
 {
-	/* TODO make gapthirdtile function */
+	/*if(m->gaps) {
+		thirdgaptile(m);
+		return;
+	}*/
 
 
         /* sy and ty are second area y and third area y,
@@ -1622,7 +1626,7 @@ thirdtile(Monitor *m)
 
 	if (n > m->nmaster) {
                 /* make sure master area and second area
-                 * on not take up too much space */
+                 * do not take up too much space */
                 if (m->symmetry)
                         m->mfact = MIN(m->mfact, 0.9);
                 else
@@ -1649,6 +1653,80 @@ thirdtile(Monitor *m)
         }
         else
                 sw = m->ww - mw;
+
+        tw = m->ww - mw - sw;
+
+	for (i = my = sy = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
+		if (i < m->nmaster) {
+			h = (m->wh - my) / (MIN(n, m->nmaster) - i);
+			resize(c, m->wx + tw, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
+			if (my + HEIGHT(c) < m->wh)
+				my += HEIGHT(c);
+		} else if(i < m->nmaster + nsecond) {
+			h = (m->wh - sy) / (m->nmaster + nsecond - i);
+			resize(c, m->wx + tw + mw, m->wy + sy, sw - (2*c->bw), h - (2*c->bw), 0);
+			if (sy + HEIGHT(c) < m->wh)
+				sy += HEIGHT(c);
+		} else {
+			h = (m->wh - ty) / (n - i);
+			resize(c, m->wx, m->wy + ty, tw - (2*c->bw), h - (2*c->bw), 0);
+			if (ty + HEIGHT(c) < m->wh)
+				ty += HEIGHT(c);
+                }
+}
+
+void
+thirdgaptile(Monitor *m)
+{
+	//TODO ns seems to be the number of sections / areas,
+	//     so I will need to change when and to which value
+	//     it is set.
+        /* sy and ty are second area y and third area y,
+         * same for sw and tw */
+	unsigned int i, n, nsecond, h, mw, my, sw, sy, tw, ty, ns;
+	Client *c;
+
+	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
+	if (n == 0)
+		return;
+        if (n == 1) {
+		c = nexttiled(m->clients);
+		resize(c, m->wx, m->wy, m->ww - 2 * c->bw, m->wh - 2 * c->bw, 0);
+		return;
+	}
+
+	if (n > m->nmaster) {
+                /* make sure master area and second area
+                 * do not take up too much space */
+                if (m->symmetry)
+                        m->mfact = MIN(m->mfact, 0.9);
+                else
+                        m->mfact = MIN(m->mfact, 0.95 - m->sfact);
+
+		mw = m->nmaster ? m->ww * m->mfact : 0;
+		ns = m->nmaster > 0 ? 2 : 1;
+        }
+	else {
+		mw = m->ww - m->gappx;
+		ns = 1;
+	}
+
+        /* number of windows on the second area */
+        nsecond = (n - m->nmaster) / 2;
+        if (nsecond < 0)
+                nsecond = 0;
+        else if ((n - m->nmaster) % 2 == 1)
+                /* always round up */
+                nsecond++;
+
+        if (n > m->nmaster + nsecond) {
+                if (m->symmetry)
+                        sw = (m->ww - mw) / 2;
+                else
+                        sw = m->ww * m->sfact;
+        }
+        else
+                sw = m->ww - mw - m->gappx;
 
         tw = m->ww - mw - sw;
 
@@ -1705,7 +1783,8 @@ tile(Monitor *m)
 		}
 }
 
-void gaptile(Monitor *m)
+void
+gaptile(Monitor *m)
 {
         unsigned int i, n, h, mw, my, ty, ns;
 	Client *c;
