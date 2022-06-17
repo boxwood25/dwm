@@ -1679,8 +1679,7 @@ void
 thirdgaptile(Monitor *m)
 {
 	//TODO ns seems to be the number of sections / areas,
-	//     so I will need to change when and to which value
-	//     it is set.
+        //     but I will have to confirm that.
         /* sy and ty are second area y and third area y,
          * same for sw and tw */
 	unsigned int i, n, nsecond, h, mw, my, sw, sy, tw, ty, ns;
@@ -1707,7 +1706,7 @@ thirdgaptile(Monitor *m)
 		ns = m->nmaster > 0 ? 2 : 1;
         }
 	else {
-		mw = m->ww - m->gappx;
+		mw = m->ww;
 		ns = 1;
 	}
 
@@ -1724,25 +1723,27 @@ thirdgaptile(Monitor *m)
                         sw = (m->ww - mw) / 2;
                 else
                         sw = m->ww * m->sfact;
+
+                ns++;
         }
         else
-                sw = m->ww - mw - m->gappx;
+                sw = m->ww - mw;
 
         tw = m->ww - mw - sw;
 
-	for (i = my = sy = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
+	for (i = 0, my = sy = ty = m->gappx, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
 		if (i < m->nmaster) {
-			h = (m->wh - my) / (MIN(n, m->nmaster) - i);
+			h = (m->wh - my) / (MIN(n, m->nmaster) - i) - m->gappx;
 			resize(c, m->wx + tw, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
 			if (my + HEIGHT(c) < m->wh)
 				my += HEIGHT(c);
 		} else if(i < m->nmaster + nsecond) {
-			h = (m->wh - sy) / (m->nmaster + nsecond - i);
+			h = (m->wh - sy) / (m->nmaster + nsecond - i) - m->gappx;
 			resize(c, m->wx + tw + mw, m->wy + sy, sw - (2*c->bw), h - (2*c->bw), 0);
 			if (sy + HEIGHT(c) < m->wh)
 				sy += HEIGHT(c);
 		} else {
-			h = (m->wh - ty) / (n - i);
+			h = (m->wh - ty) / (n - i) - m->gappx;
 			resize(c, m->wx, m->wy + ty, tw - (2*c->bw), h - (2*c->bw), 0);
 			if (ty + HEIGHT(c) < m->wh)
 				ty += HEIGHT(c);
@@ -1803,7 +1804,7 @@ gaptile(Monitor *m)
 		ns = m->nmaster > 0 ? 2 : 1;
 	}
 	else{
-		mw = m->ww - m->gappx;
+		mw = m->ww;
 		ns = 1;
 	}
 	for (i = 0, my = ty = m->gappx, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
