@@ -1734,20 +1734,20 @@ thirdgaptile(Monitor *m)
 	for (i = 0, my = sy = ty = m->gappx, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
 		if (i < m->nmaster) {
 			h = (m->wh - my) / (MIN(n, m->nmaster) - i) - m->gappx;
-			resize(c, m->wx + tw + m->gappx, m->wy + my,
+			resize(c, m->wx + tw + m->gappx/MIN(ns, 2), m->wy + my,
                                 mw - (2*c->bw) - m->gappx*(5-ns)/2, h - (2*c->bw), 0);
 			if (my + HEIGHT(c) + m->gappx < m->wh)
 				my += HEIGHT(c) + m->gappx;
 		} else if(i < m->nmaster + nsecond) {
 			h = (m->wh - sy) / (m->nmaster + nsecond - i) - m->gappx;
-			resize(c, m->wx + tw + mw, m->wy + sy,
-                                sw - (2*c->bw) - m->gappx*(5-ns)/2, h - (2*c->bw), 0);
+			resize(c, m->wx + tw + mw + m->gappx/MIN(ns, 2), m->wy + sy,
+                                sw - (2*c->bw) - m->gappx*(5-MIN(ns, 2))/2, h - (2*c->bw), 0);
 			if (sy + HEIGHT(c) + m->gappx < m->wh)
 				sy += HEIGHT(c) + m->gappx;
 		} else {
 			h = (m->wh - ty) / (n - i) - m->gappx;
-			resize(c, m->wx, m->wy + ty,
-                                tw - (2*c->bw) - m->gappx*(5-ns)/2, h - (2*c->bw), 0);
+			resize(c, m->wx + m->gappx, m->wy + ty,
+                                tw - (2*c->bw) - m->gappx*(5-MIN(ns, 2))/2, h - (2*c->bw), 0);
 			if (ty + HEIGHT(c) + m->gappx < m->wh)
 				ty += HEIGHT(c) + m->gappx;
                 }
