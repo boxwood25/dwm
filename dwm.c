@@ -1734,19 +1734,22 @@ thirdgaptile(Monitor *m)
 	for (i = 0, my = sy = ty = m->gappx, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
 		if (i < m->nmaster) {
 			h = (m->wh - my) / (MIN(n, m->nmaster) - i) - m->gappx;
-			resize(c, m->wx + tw, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
-			if (my + HEIGHT(c) < m->wh)
-				my += HEIGHT(c);
+			resize(c, m->wx + tw + m->gappx, m->wy + my,
+                                mw - (2*c->bw) - m->gappx*(5-ns)/2, h - (2*c->bw), 0);
+			if (my + HEIGHT(c) + m->gappx < m->wh)
+				my += HEIGHT(c) + m->gappx;
 		} else if(i < m->nmaster + nsecond) {
 			h = (m->wh - sy) / (m->nmaster + nsecond - i) - m->gappx;
-			resize(c, m->wx + tw + mw, m->wy + sy, sw - (2*c->bw), h - (2*c->bw), 0);
-			if (sy + HEIGHT(c) < m->wh)
-				sy += HEIGHT(c);
+			resize(c, m->wx + tw + mw, m->wy + sy,
+                                sw - (2*c->bw) - m->gappx*(5-ns)/2, h - (2*c->bw), 0);
+			if (sy + HEIGHT(c) + m->gappx < m->wh)
+				sy += HEIGHT(c) + m->gappx;
 		} else {
 			h = (m->wh - ty) / (n - i) - m->gappx;
-			resize(c, m->wx, m->wy + ty, tw - (2*c->bw), h - (2*c->bw), 0);
-			if (ty + HEIGHT(c) < m->wh)
-				ty += HEIGHT(c);
+			resize(c, m->wx, m->wy + ty,
+                                tw - (2*c->bw) - m->gappx*(5-ns)/2, h - (2*c->bw), 0);
+			if (ty + HEIGHT(c) + m->gappx < m->wh)
+				ty += HEIGHT(c) + m->gappx;
                 }
 }
 
@@ -1810,12 +1813,14 @@ gaptile(Monitor *m)
 	for (i = 0, my = ty = m->gappx, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
 		if (i < m->nmaster) {
 			h = (m->wh - my) / (MIN(n, m->nmaster) - i) - m->gappx;
-			resize(c, m->wx + m->gappx, m->wy + my, mw - 2*c->bw - m->gappx*(5-ns)/2, h - 2*c->bw, 0);
+			resize(c, m->wx + m->gappx, m->wy + my,
+                                mw - 2*c->bw - m->gappx*(5-ns)/2, h - 2*c->bw, 0);
 			if(my + HEIGHT(c) + m->gappx < m->wh)
 				my += HEIGHT(c) + m->gappx;
 		} else {
 			h = (m->wh - ty) / (n - i) - m->gappx;
-			resize(c, m->wx + mw + m->gappx/ns, m->wy + ty, m->ww - mw - (2*c->bw) - m->gappx*(5-ns)/2, h - 2*c->bw, 0);
+			resize(c, m->wx + mw + m->gappx/ns, m->wy + ty,
+                                m->ww - mw - (2*c->bw) - m->gappx*(5-ns)/2, h - 2*c->bw, 0);
 			if(ty + HEIGHT(c) + m->gappx < m->wh)
 				ty += HEIGHT(c) + m->gappx;
 		}
