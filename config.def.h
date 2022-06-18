@@ -89,8 +89,9 @@ static const char wallpapers[] = "~/Pictures/more/wallpapers/Minimalistic-Wallpa
 /* bluetooth device to optionally connect to */
 static const char btdevice[] = "00:13:EF:A0:08:DC";
 
-/* display to optionally turn off */
+/* displays to optionally turn off */
 static const char optdisplay[] = "eDP";
+static const char optdisplay2[] = "DisplayPort-0";
 
 /* key definitions */
 #define MODKEY Mod1Mask
@@ -152,6 +153,7 @@ static Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
         { Mod4Mask,                     XK_s,      suspend,        {0} },
         { Mod4Mask,                     XK_o,      displayoff,     {0} },
+        { Mod4Mask|ShiftMask,		XK_o,      displayoff,     {1} },
         { Mod4Mask,                     XK_e,      exec,         {.v = "dolphin"} },
         { Mod4Mask,                     XK_q,      exec,         {.v = "qutebrowser"} },
         { Mod4Mask,                     XK_Up,     pulseaudioctl,  {1} },
@@ -269,7 +271,12 @@ void
 displayoff(const Arg *arg) {
     char cmd[128];
     strcpy(cmd, "xrandr --output ");
-    strcat(cmd, optdisplay);
+
+    if (arg->i == 0)
+	    strcat(cmd, optdisplay);
+    else
+	    strcat(cmd, optdisplay2);
+
     system(strcat(cmd, " --off"));
 }
 
