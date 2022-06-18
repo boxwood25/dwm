@@ -1431,8 +1431,13 @@ setlayout(const Arg *arg)
 {
 	if (!arg || !arg->v || arg->v != selmon->lt[selmon->sellt])
 		selmon->sellt ^= 1;
-	if (arg && arg->v)
+	if (arg && arg->v) {
+		//TODO if switching from floating layout,
+		//     save; if switching to floating layout,
+		//     restore.
+
 		selmon->lt[selmon->sellt] = (Layout *)arg->v;
+        }
 	strncpy(selmon->ltsymbol, selmon->lt[selmon->sellt]->symbol, sizeof selmon->ltsymbol);
 	if (selmon->sel)
 		arrange(selmon);
@@ -1683,10 +1688,9 @@ thirdtile(Monitor *m)
 void
 thirdgaptile(Monitor *m)
 {
-	//TODO ns seems to be the number of sections / areas,
-        //     but I will have to confirm that.
         /* sy and ty are second area y and third area y,
-         * same for sw and tw */
+         * same for sw and tw;
+	 * ns is the number of sections / areas */
 	unsigned int i, n, nsecond, h, mw, my, sw, sy, tw, ty, ns;
 	Client *c;
 
