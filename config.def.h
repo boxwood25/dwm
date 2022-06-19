@@ -21,6 +21,21 @@ static const char *colors[][3]      = {
 	[SchemeNorm] = { col_green, col_gray1, col_black },
 	[SchemeSel]  = { col_gray1, col_green,  col_green  },
 };
+/* wallpapers */
+static const char wallpapers[] = "~/Pictures/more/wallpapers/Minimalistic-Wallpaper-Collection/images";
+/* night mode */
+static int nightmode = 0;
+/* https://askubuntu.com/questions/1003101/how-to-use-xrandr-gamma-for-gnome-night-light-like-usage */
+static const char *nightcol[][3] = {
+        {"1",           "1",            "1"},
+        {"1",           "0.97107439",   "0.94305985"},
+        {"1",           "0.93853986",   "0.88130458"},
+        {"1",           "0.90198230",   "0.81465502"},
+        {"1",           "0.86860704",   "0.73688797"},
+        {"1",           "0.82854786",   "0.64816570"},
+        {"1",           "0.77987699",   "0.54642268"},
+        {"1",           "0.71976951",   "0.42860152"},
+};
 
 /* tagging */
 static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
@@ -68,23 +83,7 @@ static void displayoff(const Arg *arg);
 static void togglesym(const Arg *arg);
 static void togglegaps(const Arg *arg);
 static void setgaps(const Arg *arg);
-
-/* night mode */
-static int nightmode = 0;
-/* https://askubuntu.com/questions/1003101/how-to-use-xrandr-gamma-for-gnome-night-light-like-usage */
-static const char *nightcol[][3] = {
-        {"1",           "1",            "1"},
-        {"1",           "0.97107439",   "0.94305985"},
-        {"1",           "0.93853986",   "0.88130458"},
-        {"1",           "0.90198230",   "0.81465502"},
-        {"1",           "0.86860704",   "0.73688797"},
-        {"1",           "0.82854786",   "0.64816570"},
-        {"1",           "0.77987699",   "0.54642268"},
-        {"1",           "0.71976951",   "0.42860152"},
-};
-
-/* wallpapers */
-static const char wallpapers[] = "~/Pictures/more/wallpapers/Minimalistic-Wallpaper-Collection/images";
+static void togglemicmute(const Arg *arg);
 
 /* bluetooth device to optionally connect to */
 static const char btdevice[] = "00:13:EF:A0:08:DC";
@@ -92,6 +91,9 @@ static const char btdevice[] = "00:13:EF:A0:08:DC";
 /* displays to optionally turn off */
 static const char optdisplay[] = "eDP";
 static const char optdisplay2[] = "DisplayPort-0";
+
+/* mic mute status */
+static int micmute = 1;
 
 /* key definitions */
 #define MODKEY Mod1Mask
@@ -165,6 +167,7 @@ static Key keys[] = {
         { Mod4Mask,                     XK_j,      pulseaudioctl,  {.v = "down"} },
         { Mod4Mask,                     XK_space,  pulseaudioctl,  {.v = "next-sink"} },
         { Mod4Mask,                     XK_m,      pulseaudioctl,  {.v = "togmute"} },
+        { Mod4Mask|ShiftMask,           XK_m,      togglemicmute,  {0} },
         { Mod4Mask,                     XK_d,      bluetooth,      {0} },
         { Mod4Mask,                     XK_Left,   backlight,      {0} },
         { Mod4Mask,                     XK_h,      backlight,      {0} },
@@ -294,4 +297,17 @@ setgaps(const Arg *arg)
 
 	selmon->gappx += arg->i;
 	arrange(selmon);
+}
+
+void
+togglemicmute(const Arg *arg)
+{
+	micmute = !micmute;
+
+	char cmd[64];
+	strcpy(cmd, "pactl set-source-mute $(pactl get-default-source) ");
+	
+	strcat(cmd, micmute ? "1" : "0");
+
+	system(cmd);
 }
