@@ -155,16 +155,16 @@ static Key keys[] = {
         { Mod4Mask,                     XK_s,      suspend,        {0} },
         { Mod4Mask,                     XK_o,      displayoff,     {0} },
         { Mod4Mask|ShiftMask,		XK_o,      displayoff,     {1} },
-        { Mod4Mask,                     XK_e,      exec,         {.v = "dolphin"} },
-        { Mod4Mask,                     XK_q,      exec,         {.v = "qutebrowser"} },
-        { Mod4Mask,                     XK_f,      exec,         {.v = "firefox"} },
-        { Mod4Mask|ShiftMask,           XK_f,      exec,         {.v = "killall firefox"} },
-        { Mod4Mask,                     XK_Up,     pulseaudioctl,  {1} },
-        { Mod4Mask,                     XK_k,      pulseaudioctl,  {1} },
-        { Mod4Mask,                     XK_Down,   pulseaudioctl,  {0} },
-        { Mod4Mask,                     XK_j,      pulseaudioctl,  {0} },
-        { Mod4Mask,                     XK_space,  pulseaudioctl,  {3} },
-        { Mod4Mask,                     XK_m,      pulseaudioctl,  {2} },
+        { Mod4Mask,                     XK_e,      exec,           {.v = "dolphin"} },
+        { Mod4Mask,                     XK_q,      exec,           {.v = "qutebrowser"} },
+        { Mod4Mask,                     XK_f,      exec,           {.v = "firefox"} },
+        { Mod4Mask|ShiftMask,           XK_f,      exec,           {.v = "killall firefox"} },
+        { Mod4Mask,                     XK_Up,     pulseaudioctl,  {.v = "--volume-max 100 up"} },
+        { Mod4Mask,                     XK_k,      pulseaudioctl,  {.v = "--volume-max 100 up"} },
+        { Mod4Mask,                     XK_Down,   pulseaudioctl,  {.v = "down"} },
+        { Mod4Mask,                     XK_j,      pulseaudioctl,  {.v = "down"} },
+        { Mod4Mask,                     XK_space,  pulseaudioctl,  {.v = "next-sink"} },
+        { Mod4Mask,                     XK_m,      pulseaudioctl,  {.v = "togmute"} },
         { Mod4Mask,                     XK_d,      bluetooth,      {0} },
         { Mod4Mask,                     XK_Left,   backlight,      {0} },
         { Mod4Mask,                     XK_h,      backlight,      {0} },
@@ -187,20 +187,9 @@ static Button buttons[] = {
 /* custom functions */
 void
 pulseaudioctl(const Arg *arg) {
-    switch(arg->i)
-    {
-        case 0:
-            system("pulseaudio-control down");
-        break;
-        case 1:
-            system("pulseaudio-control --volume-max 100 up");
-        break;
-        case 2:
-            system("pulseaudio-control togmute");
-        break;
-        default:
-            system("pulseaudio-control next-sink");
-    }
+    char cmd[128];
+    strcpy(cmd, "pulseaudio-control ");
+    system(strcat(cmd, arg->v));
 }
 
 void
