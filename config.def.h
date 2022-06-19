@@ -156,6 +156,8 @@ static Key keys[] = {
         { Mod4Mask|ShiftMask,		XK_o,      displayoff,     {1} },
         { Mod4Mask,                     XK_e,      exec,         {.v = "dolphin"} },
         { Mod4Mask,                     XK_q,      exec,         {.v = "qutebrowser"} },
+        { Mod4Mask,                     XK_f,      exec,         {.v = "firefox"} },
+        { Mod4Mask|ShiftMask,           XK_f,      exec,         {.v = "killall firefox"} },
         { Mod4Mask,                     XK_Up,     pulseaudioctl,  {1} },
         { Mod4Mask,                     XK_k,      pulseaudioctl,  {1} },
         { Mod4Mask,                     XK_Down,   pulseaudioctl,  {0} },
