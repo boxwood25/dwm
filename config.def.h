@@ -59,10 +59,10 @@ static const Rule rules[] = {
 static const float mfact     = 0.5;  /* factor of master area size [0.05..0.95] */
 static const float sfact     = 0.25; /* factor of second area size [0.05..0.95] */
 static const int symmetry    = 1;    /* use symmetrical setup instead of sfact */
-/* 0: use evenly spread out stacks instead of stfact 
- * n: have the first n areas respect stfact */
-static const int usestfact  = 0;
-static const float stfact    = 0.5; /* factor of the first window in the stack */
+static const int evenness    = 1;    /* evenly distribute the stacks instead of using factors */
+static const float mstfact   = 0.5;  /* factor of the first window in the master stack */
+static const float sstfact   = 0.5;  /* factor of the first window in the second stack */
+static const float tstfact   = 0.5;  /* factor of the first window in the third stack */
 static const int nmaster     = 1;    /* number of clients in master area */
 static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
 static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
@@ -85,7 +85,7 @@ static void nextwallpaper(const Arg *arg);
 static void bluetooth(const Arg *arg);
 static void displayoff(const Arg *arg);
 static void togglesym(const Arg *arg);
-static void setusestfact(const Arg *arg);
+static void toggleevenness(const Arg *arg);
 static void togglegaps(const Arg *arg);
 static void setgaps(const Arg *arg);
 static void togglemicmute(const Arg *arg);
@@ -132,8 +132,7 @@ static Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_k,      setstfact,      {.f = -0.05} },
 	{ MODKEY|ShiftMask,             XK_j,      setstfact,      {.f = +0.05} },
         { MODKEY,                       XK_s,      togglesym,      {0} },
-        { MODKEY,                       XK_u,      setusestfact,   {1} },
-        { MODKEY|ShiftMask,             XK_u,      setusestfact,   {-1} },
+        { MODKEY,                       XK_e,      toggleevenness, {0} },
 	{ MODKEY,                       XK_Return, zoom,           {0} },
 	{ MODKEY,                       XK_Tab,    view,           {0} },
 	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
@@ -292,14 +291,9 @@ togglesym(const Arg *arg)
 }
 
 void
-setusestfact(const Arg *arg)
+toggleevenness(const Arg *arg)
 {
-	selmon->usestfact += arg->i;
-        if (selmon->usestfact == -1)
-            selmon->usestfact = 3;
-        if (selmon->usestfact == 4)
-            selmon->usestfact = 0;
-
+	selmon->evenness = !selmon->evenness;
 	arrange(selmon);
 }
 
