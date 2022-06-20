@@ -1798,7 +1798,7 @@ thirdgaptile(Monitor *m)
 	for (i = 0, my = sy = ty = m->gappx, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
 		if (i < m->nmaster) {
 			if (!m->evenness && m->nmaster > 1 && i == 0)
-				h = m->wh * m->mstfact - m->gappx;
+				h = (m->wh - my) * m->mstfact - m->gappx;
 			else
 				h = (m->wh - my) / (MIN(n, m->nmaster) - i) - m->gappx;
 			resize(c, m->wx + tw + m->gappx/MAX(ns-1, 1), m->wy + my,
@@ -1807,7 +1807,7 @@ thirdgaptile(Monitor *m)
 				my += HEIGHT(c) + m->gappx;
 		} else if(i < m->nmaster + nsecond) {
 			if (!m->evenness && nsecond > 1 && i == m->nmaster)
-				h = m->wh * m->sstfact - m->gappx;
+				h = (m->wh - sy) * m->sstfact - m->gappx;
 			else
 				h = (m->wh - sy) / (m->nmaster + nsecond - i) - m->gappx;
 			resize(c, m->wx + tw + mw + m->gappx/MIN(ns, 2), m->wy + sy,
@@ -1817,7 +1817,7 @@ thirdgaptile(Monitor *m)
 		} else {
 			if (!m->evenness && n - m->nmaster - nsecond > 1
                                 && i == m->nmaster + nsecond)
-				h = m->wh * m->tstfact - m->gappx;
+				h = (m->wh - ty) * m->tstfact - m->gappx;
 			else
 				h = (m->wh - ty) / (n - i) - m->gappx;
 			resize(c, m->wx + m->gappx, m->wy + ty,
@@ -1893,7 +1893,7 @@ gaptile(Monitor *m)
 	for (i = 0, my = ty = m->gappx, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
 		if (i < m->nmaster) {
 			if (!m->evenness && m->nmaster > 1 && i == 0)
-				h = m->wh * m->mstfact - m->gappx;
+				h = (m->wh - my) * m->mstfact - m->gappx;
 			else
 				h = (m->wh - my) / (MIN(n, m->nmaster) - i) - m->gappx;
 			resize(c, m->wx + m->gappx, m->wy + my,
@@ -1902,7 +1902,7 @@ gaptile(Monitor *m)
 				my += HEIGHT(c) + m->gappx;
 		} else {
 			if (!m->evenness && n - m->nmaster > 1 && i == m->nmaster)
-				h = m->wh * m->sstfact - m->gappx;
+				h = (m->wh - ty) * m->sstfact - m->gappx;
 			else
 				h = (m->wh - ty) / (n - i) - m->gappx;
 			resize(c, m->wx + mw + m->gappx/ns, m->wy + ty,
