@@ -1789,7 +1789,7 @@ thirdgaptile(Monitor *m)
 			if (sy + HEIGHT(c) + m->gappx < m->wh)
 				sy += HEIGHT(c) + m->gappx;
 		} else {
-			if (m->nmaster - nsecond > 1 && m->usestfact >= 3
+			if (n - m->nmaster - nsecond > 1 && m->usestfact >= 3
                                 && i == m->nmaster + nsecond)
 				h = m->wh * m->stfact - m->gappx;
 			else
