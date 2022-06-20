@@ -114,9 +114,10 @@ typedef struct {
 
 struct Monitor {
 	char ltsymbol[16];
-	float mfact, sfact;
+	float mfact, sfact, stfact;
 	int nmaster;
         int symmetry;
+        int usestfact;
 	int num;
 	int by;               /* bar geometry */
 	int mx, my, mw, mh;   /* screen size */
@@ -203,6 +204,7 @@ static void setfullscreen(Client *c, int fullscreen);
 static void setlayout(const Arg *arg);
 static void setmfact(const Arg *arg);
 static void setsfact(const Arg *arg);
+static void setstfact(const Arg *arg);
 static void setup(void);
 static void seturgent(Client *c, int urg);
 static void showhide(Client *c);
@@ -623,8 +625,10 @@ createmon(void)
 	m->tagset[0] = m->tagset[1] = 1;
 	m->mfact = mfact;
 	m->sfact = sfact;
+        m->stfact = stfact;
 	m->nmaster = nmaster;
         m->symmetry = symmetry;
+        m->usestfact = usestfact;
 	m->showbar = showbar;
 	m->topbar = topbar;
         m->gaps = gaps;
@@ -1473,6 +1477,21 @@ setsfact(const Arg *arg)
 	arrange(selmon);
 }
 
+/* arg > 1.0 will set stfact absolutely */
+void
+setstfact(const Arg *arg)
+{
+	float f;
+
+	if (!arg || !selmon->lt[selmon->sellt]->arrange)
+		return;
+	f = arg->f < 1.0 ? arg->f + selmon->stfact : arg->f - 1.0;
+	if (f < 0.05 || f > 0.95)
+		return;
+	selmon->stfact = f;
+	arrange(selmon);
+}
+
 void
 setup(void)
 {
@@ -1668,17 +1687,26 @@ thirdtile(Monitor *m)
 
 	for (i = my = sy = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
 		if (i < m->nmaster) {
-			h = (m->wh - my) / (MIN(n, m->nmaster) - i);
+			if (m->usestfact >= 1 && i == 0)
+				h = m->wh * m->stfact;
+			else
+				h = (m->wh - my) / (MIN(n, m->nmaster) - i);
 			resize(c, m->wx + tw, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
 			if (my + HEIGHT(c) < m->wh)
 				my += HEIGHT(c);
 		} else if(i < m->nmaster + nsecond) {
-			h = (m->wh - sy) / (m->nmaster + nsecond - i);
+			if (m->usestfact >= 2 && i == m->nmaster)
+				h = m->wh * m->stfact;
+			else
+				h = (m->wh - sy) / (m->nmaster + nsecond - i);
 			resize(c, m->wx + tw + mw, m->wy + sy, sw - (2*c->bw), h - (2*c->bw), 0);
 			if (sy + HEIGHT(c) < m->wh)
 				sy += HEIGHT(c);
 		} else {
-			h = (m->wh - ty) / (n - i);
+			if (m->usestfact >= 3 && i == m->nmaster + nsecond)
+				h = m->wh * m->stfact;
+			else
+				h = (m->wh - ty) / (n - i);
 			resize(c, m->wx, m->wy + ty, tw - (2*c->bw), h - (2*c->bw), 0);
 			if (ty + HEIGHT(c) < m->wh)
 				ty += HEIGHT(c);
@@ -1742,19 +1770,28 @@ thirdgaptile(Monitor *m)
 
 	for (i = 0, my = sy = ty = m->gappx, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
 		if (i < m->nmaster) {
-			h = (m->wh - my) / (MIN(n, m->nmaster) - i) - m->gappx;
+			if (m->usestfact >= 1 && i == 0)
+				h = m->wh * m->stfact - m->gappx;
+			else
+				h = (m->wh - my) / (MIN(n, m->nmaster) - i) - m->gappx;
 			resize(c, m->wx + tw + m->gappx/MAX(ns-1, 1), m->wy + my,
                                 mw - (2*c->bw) - m->gappx*(5-ns)/2, h - (2*c->bw), 0);
 			if (my + HEIGHT(c) + m->gappx < m->wh)
 				my += HEIGHT(c) + m->gappx;
 		} else if(i < m->nmaster + nsecond) {
-			h = (m->wh - sy) / (m->nmaster + nsecond - i) - m->gappx;
+			if (m->usestfact >= 2 && i == m->nmaster)
+				h = m->wh * m->stfact - m->gappx;
+			else
+				h = (m->wh - sy) / (m->nmaster + nsecond - i) - m->gappx;
 			resize(c, m->wx + tw + mw + m->gappx/MIN(ns, 2), m->wy + sy,
                                 sw - (2*c->bw) - m->gappx*(5-MIN(ns, 2))/2, h - (2*c->bw), 0);
 			if (sy + HEIGHT(c) + m->gappx < m->wh)
 				sy += HEIGHT(c) + m->gappx;
 		} else {
-			h = (m->wh - ty) / (n - i) - m->gappx;
+			if (m->usestfact >= 3 && i == m->nmaster + nsecond)
+				h = m->wh * m->stfact - m->gappx;
+			else
+				h = (m->wh - ty) / (n - i) - m->gappx;
 			resize(c, m->wx + m->gappx, m->wy + ty,
                                 tw - (2*c->bw) - m->gappx*(5-MIN(ns, 2))/2, h - (2*c->bw), 0);
 			if (ty + HEIGHT(c) + m->gappx < m->wh)
@@ -1784,12 +1821,18 @@ tile(Monitor *m)
 		mw = m->ww;
 	for (i = my = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
 		if (i < m->nmaster) {
-			h = (m->wh - my) / (MIN(n, m->nmaster) - i);
+			if (m->usestfact >= 1 && i == 0)
+				h = m->wh * m->stfact;
+			else
+				h = (m->wh - my) / (MIN(n, m->nmaster) - i);
 			resize(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
 			if (my + HEIGHT(c) < m->wh)
 				my += HEIGHT(c);
 		} else {
-			h = (m->wh - ty) / (n - i);
+			if (m->usestfact >= 2 && i == m->nmaster)
+				h = m->wh * m->stfact;
+			else
+				h = (m->wh - ty) / (n - i);
 			resize(c, m->wx + mw, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
 			if (ty + HEIGHT(c) < m->wh)
 				ty += HEIGHT(c);
@@ -1821,13 +1864,19 @@ gaptile(Monitor *m)
 	}
 	for (i = 0, my = ty = m->gappx, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
 		if (i < m->nmaster) {
-			h = (m->wh - my) / (MIN(n, m->nmaster) - i) - m->gappx;
+			if (m->usestfact >= 1 && i == 0)
+				h = m->wh * m->stfact - m->gappx;
+			else
+				h = (m->wh - my) / (MIN(n, m->nmaster) - i) - m->gappx;
 			resize(c, m->wx + m->gappx, m->wy + my,
                                 mw - 2*c->bw - m->gappx*(5-ns)/2, h - 2*c->bw, 0);
 			if(my + HEIGHT(c) + m->gappx < m->wh)
 				my += HEIGHT(c) + m->gappx;
 		} else {
-			h = (m->wh - ty) / (n - i) - m->gappx;
+			if (m->usestfact >= 2 && i == m->nmaster)
+				h = m->wh * m->stfact - m->gappx;
+			else
+				h = (m->wh - ty) / (n - i) - m->gappx;
 			resize(c, m->wx + mw + m->gappx/ns, m->wy + ty,
                                 m->ww - mw - (2*c->bw) - m->gappx*(5-ns)/2, h - 2*c->bw, 0);
 			if(ty + HEIGHT(c) + m->gappx < m->wh)
