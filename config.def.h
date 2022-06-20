@@ -132,7 +132,8 @@ static Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_k,      setstfact,      {.f = -0.05} },
 	{ MODKEY|ShiftMask,             XK_j,      setstfact,      {.f = +0.05} },
         { MODKEY,                       XK_s,      togglesym,      {0} },
-        { MODKEY,                       XK_u,      setusestfact,   {0} },
+        { MODKEY,                       XK_u,      setusestfact,   {1} },
+        { MODKEY|ShiftMask,             XK_u,      setusestfact,   {-1} },
 	{ MODKEY,                       XK_Return, zoom,           {0} },
 	{ MODKEY,                       XK_Tab,    view,           {0} },
 	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
@@ -293,8 +294,12 @@ togglesym(const Arg *arg)
 void
 setusestfact(const Arg *arg)
 {
-	selmon->usestfact++;
-	selmon->usestfact %= 4;
+	selmon->usestfact += arg->i;
+        if (selmon->usestfact == -1)
+            selmon->usestfact = 3;
+        if (selmon->usestfact == 4)
+            selmon->usestfact = 0;
+
 	arrange(selmon);
 }
 
