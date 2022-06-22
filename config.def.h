@@ -84,6 +84,7 @@ static void night(const Arg *arg);
 static void nextwallpaper(const Arg *arg);
 static void bluetooth(const Arg *arg);
 static void displayoff(const Arg *arg);
+static void displayon(const Arg *arg);
 static void togglesym(const Arg *arg);
 static void toggleevenness(const Arg *arg);
 static void togglegaps(const Arg *arg);
@@ -94,8 +95,7 @@ static void togglemicmute(const Arg *arg);
 static const char btdevice[] = "00:13:EF:A0:08:DC";
 
 /* displays to optionally turn off */
-static const char optdisplay[] = "eDP";
-static const char optdisplay2[] = "DisplayPort-0";
+static const char *optdisplay[2] = { "eDP", "DisplayPort-0" };
 
 /* mic mute status */
 static int micmute = 1;
@@ -163,8 +163,10 @@ static Key keys[] = {
 	TAGKEYS(                        XK_9,                      8)
 	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
         { Mod4Mask,                     XK_s,      suspend,        {0} },
-        { Mod4Mask,                     XK_o,      displayoff,     {0} },
-        { Mod4Mask|ShiftMask,		XK_o,      displayoff,     {1} },
+        { Mod4Mask,                     XK_i,      displayoff,     {0} },
+        { Mod4Mask|ShiftMask,           XK_i,      displayon,      {0} },
+        { Mod4Mask,		        XK_d,      displayoff,     {1} },
+        { Mod4Mask|ShiftMask,		XK_d,      displayon,      {1} },
         { Mod4Mask,                     XK_e,      exec,           {.v = "dolphin"} },
         { Mod4Mask,                     XK_q,      exec,           {.v = "qutebrowser"} },
         { Mod4Mask,                     XK_f,      exec,           {.v = "firefox"} },
@@ -176,7 +178,7 @@ static Key keys[] = {
         { Mod4Mask,                     XK_space,  pulseaudioctl,  {.v = "next-sink"} },
         { Mod4Mask,                     XK_m,      pulseaudioctl,  {.v = "togmute"} },
         { Mod4Mask|ShiftMask,           XK_m,      togglemicmute,  {0} },
-        { Mod4Mask,                     XK_d,      bluetooth,      {0} },
+        { Mod4Mask,                     XK_b,      bluetooth,      {0} },
         { Mod4Mask,                     XK_Left,   backlight,      {0} },
         { Mod4Mask,                     XK_h,      backlight,      {0} },
         { Mod4Mask,                     XK_Right,  backlight,      {1} },
@@ -221,7 +223,7 @@ exec(const Arg *arg) {
 
 void
 suspend(const Arg *arg) {
-    system("systemctl suspend; slock");
+	system("systemctl suspend; slock");
 }
 
 void
@@ -255,18 +257,18 @@ night(const Arg *arg) {
 
 void
 nextwallpaper(const Arg *arg) {
-    char cmd[1024];
-    strcpy(cmd, "feh --bg-fill --randomize ");
-    system(strcat(cmd, wallpapers));
+	char cmd[1024];
+	strcpy(cmd, "feh --bg-fill --randomize ");
+	system(strcat(cmd, wallpapers));
 }
 
 void
 bluetooth(const Arg *arg) {
     if(fork() == 0) {
-        char cmd[64];
-        strcpy(cmd, "bluetoothctl power on && bluetoothctl connect ");
-        system(strcat(cmd, btdevice));
-        exit(0);
+	    char cmd[64];
+	    strcpy(cmd, "bluetoothctl power on && bluetoothctl connect ");
+	    system(strcat(cmd, btdevice));
+	    exit(0);
     }
 }
 
@@ -275,12 +277,32 @@ displayoff(const Arg *arg) {
     char cmd[128];
     strcpy(cmd, "xrandr --output ");
 
-    if (arg->i == 0)
-	    strcat(cmd, optdisplay);
-    else
-	    strcat(cmd, optdisplay2);
+    strcat(cmd, optdisplay[arg->i]);
 
     system(strcat(cmd, " --off"));
+}
+
+void
+displayon(const Arg *arg) {
+    char cmd[128];
+    strcpy(cmd, "xrandr --output ");
+    strcat(cmd, optdisplay[arg->i]);
+    system(strcat(cmd, " --auto"));
+    strcpy(cmd, "xrandr --output ");
+    strcat(cmd, optdisplay[arg->i]);
+
+    if (arg->i == 0)
+	    strcat(cmd, " --left-of");
+    else
+	    strcat(cmd, " --right-of");
+
+    system(strcat(cmd, " HDMI-A-0"));
+
+    if (arg->i == 1) {
+	    strcpy(cmd, "xrandr --output ");
+	    strcat(cmd, optdisplay[1]);
+	    system(strcat(cmd, " --rotate right"));
+    }
 }
 
 void
