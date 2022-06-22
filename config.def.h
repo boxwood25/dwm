@@ -94,7 +94,8 @@ static void togglemicmute(const Arg *arg);
 /* bluetooth device to optionally connect to */
 static const char btdevice[] = "00:13:EF:A0:08:DC";
 
-/* displays to optionally turn off */
+/* displays */
+static const char maindisplay[] = "HDMI-A-0";
 static const char *optdisplay[2] = { "eDP", "DisplayPort-0" };
 
 /* mic mute status */
@@ -287,22 +288,19 @@ displayon(const Arg *arg) {
     char cmd[128];
     strcpy(cmd, "xrandr --output ");
     strcat(cmd, optdisplay[arg->i]);
-    system(strcat(cmd, " --auto"));
-    strcpy(cmd, "xrandr --output ");
-    strcat(cmd, optdisplay[arg->i]);
+    strcat(cmd, " --auto ");
 
     if (arg->i == 0)
-	    strcat(cmd, " --left-of");
+	    strcat(cmd, " --left-of ");
     else
-	    strcat(cmd, " --right-of");
+	    strcat(cmd, " --right-of ");
 
-    system(strcat(cmd, " HDMI-A-0"));
+    strcat(cmd, maindisplay);
 
-    if (arg->i == 1) {
-	    strcpy(cmd, "xrandr --output ");
-	    strcat(cmd, optdisplay[1]);
-	    system(strcat(cmd, " --rotate right"));
-    }
+    if (arg->i == 1)
+	    strcat(cmd, " --rotate right");
+
+    system(cmd);
 }
 
 void
