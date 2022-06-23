@@ -2,7 +2,7 @@
 
 /* appearance */
 static const unsigned int borderpx  = 3;        /* border pixel of windows */
-static const int gaps               = 1;        /* 0 means no gaps */
+static const int gaps               = 0;        /* 0 means no gaps */
 static const int gappx              = 25;       /* gaps between windows */
 static const unsigned int snap      = 20;       /* snap pixel */
 static const int showbar            = 1;        /* 0 means no bar */
