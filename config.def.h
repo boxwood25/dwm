@@ -64,6 +64,8 @@ static const float mstfact   = 0.5;  /* factor of the first window in the master
 static const float sstfact   = 0.5;  /* factor of the first window in the second stack */
 static const float tstfact   = 0.5;  /* factor of the first window in the third stack */
 static const int nmaster     = 1;    /* number of clients in master area */
+/* number of places where there would be one client, but there are two (horizontally) */
+static const int nsplit      = 0;
 static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
 static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
 
@@ -126,6 +128,8 @@ static Key keys[] = {
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
 	{ MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
 	{ MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
+	{ MODKEY|ShiftMask,             XK_i,      incnsplit,      {.i = +1 } },
+	{ MODKEY|ShiftMask,             XK_d,      incnsplit,      {.i = -1 } },
 	{ MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
 	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
 	{ MODKEY|ShiftMask,             XK_h,      setsfact,       {.f = -0.05} },

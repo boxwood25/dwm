@@ -116,6 +116,7 @@ struct Monitor {
 	char ltsymbol[16];
 	float mfact, sfact, mstfact, sstfact, tstfact;
 	int nmaster;
+        int nsplit;
         int symmetry;
         int evenness;
 	int num;
@@ -177,6 +178,7 @@ static int gettextprop(Window w, Atom atom, char *text, unsigned int size);
 static void grabbuttons(Client *c, int focused);
 static void grabkeys(void);
 static void incnmaster(const Arg *arg);
+static void incnsplit(const Arg *arg);
 static void keypress(XEvent *e);
 static void killclient(const Arg *arg);
 static void manage(Window w, XWindowAttributes *wa);
@@ -629,6 +631,7 @@ createmon(void)
         m->sstfact = sstfact;
         m->tstfact = tstfact;
 	m->nmaster = nmaster;
+        m->nsplit = nsplit;
         m->symmetry = symmetry;
         m->evenness = evenness;
 	m->showbar = showbar;
@@ -903,6 +906,14 @@ incnmaster(const Arg *arg)
          * derceasing it to a good level would
          * take forever. */
 	selmon->nmaster = MIN(nm, 9);
+	arrange(selmon);
+}
+
+void
+incnsplit(const Arg *arg)
+{
+        int ns = MAX(selmon->nmaster + arg->i, 0);
+	selmon->nsplit = MIN(ns, 20);
 	arrange(selmon);
 }
 
@@ -1836,14 +1847,16 @@ tile(Monitor *m)
 	}
 
 
-	unsigned int i, n, h, mw, my, ty;
+	/* nt is number of tiles, some of which can be split */
+	unsigned int i, n, nt, h, mw, my, ty;
 	Client *c;
 
 	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
 	if (n == 0)
 		return;
+        nt = MAX(n - m->nsplit,  0);
 
-	if (n > m->nmaster)
+	if (nt > m->nmaster)
 		mw = m->nmaster ? m->ww * m->mfact : 0;
 	else
 		mw = m->ww;
@@ -1852,16 +1865,30 @@ tile(Monitor *m)
 			if (!m->evenness && m->nmaster > 1 && i == 0)
 				h = m->wh * m->mstfact;
 			else
-				h = (m->wh - my) / (MIN(n, m->nmaster) - i);
-			resize(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
+				h = (m->wh - my) / (MIN(nt, m->nmaster) - i);
+			//TODO fix the if condition!
+			if (n - i <= m->nsplit) {
+				resize(c, m->wx, m->wy + my, mw / 2 - (2*c->bw), h - (2*c->bw), 0);
+				c = nexttiled(c->next);
+				i++;
+				resize(c, m->wx + mw / 2, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
+			}else
+				resize(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
 			if (my + HEIGHT(c) < m->wh)
 				my += HEIGHT(c);
 		} else {
-			if (!m->evenness && n - m->nmaster > 1 && i == m->nmaster)
+			if (!m->evenness && nt - m->nmaster > 1 && i == m->nmaster)
 				h = m->wh * m->sstfact;
 			else
-				h = (m->wh - ty) / (n - i);
-			resize(c, m->wx + mw, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
+				h = (m->wh - ty) / (nt - i);
+			if (n - i <= m->nsplit) {
+				resize(c, m->wx + mw, m->wy + ty, (m->ww - mw) / 2 - (2*c->bw), h - (2*c->bw), 0);
+                                c = nexttiled(c->next);
+                                i++;
+				resize(c, m->wx + mw + (m->ww - mw) / 2, m->wy + ty,
+						m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
+			}else
+				resize(c, m->wx + mw, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
 			if (ty + HEIGHT(c) < m->wh)
 				ty += HEIGHT(c);
 		}
