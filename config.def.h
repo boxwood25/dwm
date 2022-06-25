@@ -298,7 +298,7 @@ displayon(const Arg *arg) {
     strcat(cmd, maindisplay);
 
     if (arg->i == 1)
-	    strcat(cmd, " --rotate right");
+	    strcat(cmd, " --rotate right --pos 0x-350");
 
     system(cmd);
 }
