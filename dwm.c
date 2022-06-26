@@ -1224,24 +1224,25 @@ resize(Client *c, int x, int y, int w, int h, int interact)
 void
 gapresize(Monitor *m, Client *c, int x, int y, int w, int h)
 {
-	/* always add 3 pixels of tolerance for rounding errors */
-	if (!m->gaps || (x <= 3 && y <= 3 && w+3 >= m->ww && h+3 >= m->wh))
+	/* it is often necessary add 3 pixels
+         * of tolerance for rounding errors */
+	if (!m->gaps || (x == m->wx && y == m->wy && w+3 >= m->ww && h+3 >= m->wh))
 		resize(c, x, y, w, h, 0);
 	else {
 		int tx, ty, tw, th;
 
-		if (x <= 3)
-			tx = m->gappx;
+		if (x == m->wx)
+			tx = m->wx + m->gappx;
 		else
 			tx = x + m->gappx / 2;
 		ty = y + m->gappx;
 
-		if (x+w+3 >= m->ww)
+		if (x-m->wx+w+3 >= m->ww)
 			tw = w - tx + x - m->gappx;
 		else
 			tw = w - tx + x - m->gappx / 2;
 
-		if (y+h+3 >= m->wh)
+		if (y-m->wy+h+3 >= m->wh)
 			th = h - 2 * m->gappx;
 		else
 			th = h - 3 * m->gappx / 2;
