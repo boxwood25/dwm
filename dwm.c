@@ -217,7 +217,6 @@ static void spawn(const Arg *arg);
 static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
 static void thirdtile(Monitor *);
-static void thirdgaptile(Monitor *);
 static void tile(Monitor *);
 static void togglebar(const Arg *arg);
 static void togglefloating(const Arg *arg);
@@ -1724,12 +1723,6 @@ tagmon(const Arg *arg)
 void
 thirdtile(Monitor *m)
 {
-	if(m->gaps) {
-		thirdgaptile(m);
-		return;
-	}
-
-
         /* sy and ty are second area y and third area y,
          * same for sw and tw */
 	unsigned int i, n, nsecond, h, mw, my, sw, sy, tw, ty;
@@ -1777,113 +1770,26 @@ thirdtile(Monitor *m)
 				h = m->wh * m->mstfact;
 			else
 				h = (m->wh - my) / (MIN(n, m->nmaster) - i);
-			resize(c, m->wx + tw, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
+			gapresize(m, c, m->wx + tw, m->wy + my, mw, h);
 			if (my + HEIGHT(c) < m->wh)
-				my += HEIGHT(c);
+				my += HEIGHT(c) + m->gaps * m->gappx;
 		} else if(i < m->nmaster + nsecond) {
 			if (!m->evenness && nsecond > 1 && i == m->nmaster)
 				h = m->wh * m->sstfact;
 			else
 				h = (m->wh - sy) / (m->nmaster + nsecond - i);
-			resize(c, m->wx + tw + mw, m->wy + sy, sw - (2*c->bw), h - (2*c->bw), 0);
+			gapresize(m, c, m->wx + tw + mw, m->wy + sy, sw, h);
 			if (sy + HEIGHT(c) < m->wh)
-				sy += HEIGHT(c);
+				sy += HEIGHT(c) + m->gaps * m->gappx;
 		} else {
 			if (!m->evenness && n - m->nmaster - nsecond > 1
                                 && i == m->nmaster + nsecond)
 				h = m->wh * m->tstfact;
 			else
 				h = (m->wh - ty) / (n - i);
-			resize(c, m->wx, m->wy + ty, tw - (2*c->bw), h - (2*c->bw), 0);
+			gapresize(m, c, m->wx, m->wy + ty, tw, h);
 			if (ty + HEIGHT(c) < m->wh)
-				ty += HEIGHT(c);
-                }
-}
-
-void
-thirdgaptile(Monitor *m)
-{
-        /* sy and ty are second area y and third area y,
-         * same for sw and tw;
-	 * ns is the number of sections / areas */
-	unsigned int i, n, nsecond, h, mw, my, sw, sy, tw, ty, ns;
-	Client *c;
-
-	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
-	if (n == 0)
-		return;
-        if (n == 1) {
-		c = nexttiled(m->clients);
-		resize(c, m->wx, m->wy, m->ww - 2 * c->bw, m->wh - 2 * c->bw, 0);
-		return;
-	}
-
-	if (n > m->nmaster) {
-                /* make sure master area and second area
-                 * do not take up too much space */
-                if (m->symmetry)
-                        m->mfact = MIN(m->mfact, 0.9);
-                else
-                        m->mfact = MIN(m->mfact, 0.95 - m->sfact);
-
-		mw = m->nmaster ? m->ww * m->mfact : 0;
-		ns = m->nmaster > 0 ? 2 : 1;
-        }
-	else {
-		mw = m->ww;
-		ns = 1;
-	}
-
-        /* number of windows on the second area */
-        nsecond = (n - m->nmaster) / 2;
-        if (nsecond < 0)
-                nsecond = 0;
-        else if ((n - m->nmaster) % 2 == 1)
-                /* always round up */
-                nsecond++;
-
-        if (n > m->nmaster + nsecond) {
-                if (m->symmetry)
-                        sw = (m->ww - mw) / 2;
-                else
-                        sw = m->ww * m->sfact;
-
-                ns++;
-        }
-        else
-                sw = m->ww - mw;
-
-        tw = m->ww - mw - sw;
-
-	for (i = 0, my = sy = ty = m->gappx, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
-		if (i < m->nmaster) {
-			if (!m->evenness && m->nmaster > 1 && i == 0)
-				h = (m->wh - my) * m->mstfact - m->gappx;
-			else
-				h = (m->wh - my) / (MIN(n, m->nmaster) - i) - m->gappx;
-			resize(c, m->wx + tw + m->gappx/MAX(ns-1, 1), m->wy + my,
-                                mw - (2*c->bw) - m->gappx*(5-ns)/2, h - (2*c->bw), 0);
-			if (my + HEIGHT(c) + m->gappx < m->wh)
-				my += HEIGHT(c) + m->gappx;
-		} else if(i < m->nmaster + nsecond) {
-			if (!m->evenness && nsecond > 1 && i == m->nmaster)
-				h = (m->wh - sy) * m->sstfact - m->gappx;
-			else
-				h = (m->wh - sy) / (m->nmaster + nsecond - i) - m->gappx;
-			resize(c, m->wx + tw + mw + m->gappx/MIN(ns, 2), m->wy + sy,
-                                sw - (2*c->bw) - m->gappx*(5-MIN(ns, 2))/2, h - (2*c->bw), 0);
-			if (sy + HEIGHT(c) + m->gappx < m->wh)
-				sy += HEIGHT(c) + m->gappx;
-		} else {
-			if (!m->evenness && n - m->nmaster - nsecond > 1
-                                && i == m->nmaster + nsecond)
-				h = (m->wh - ty) * m->tstfact - m->gappx;
-			else
-				h = (m->wh - ty) / (n - i) - m->gappx;
-			resize(c, m->wx + m->gappx, m->wy + ty,
-                                tw - (2*c->bw) - m->gappx*(5-MIN(ns, 2))/2, h - (2*c->bw), 0);
-			if (ty + HEIGHT(c) + m->gappx < m->wh)
-				ty += HEIGHT(c) + m->gappx;
+				ty += HEIGHT(c) + m->gaps * m->gappx;
                 }
 }
 
