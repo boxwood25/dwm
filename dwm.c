@@ -913,7 +913,7 @@ void
 incnsplit(const Arg *arg)
 {
         int ns = MAX(selmon->nsplit + arg->i, 0);
-	selmon->nsplit = MIN(ns, 20);
+	selmon->nsplit = MIN(ns, 9);
 	arrange(selmon);
 }
 
