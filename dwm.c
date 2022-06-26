@@ -1224,6 +1224,9 @@ resize(Client *c, int x, int y, int w, int h, int interact)
 void
 gapresize(Monitor *m, Client *c, int x, int y, int w, int h)
 {
+	w += 2 * c->bw;
+	h += 2 * c->bw;
+
 	/* it is often necessary add 3 pixels
          * of tolerance for rounding errors */
 	if (!m->gaps || (x == m->wx && y == m->wy && w+3 >= m->ww && h+3 >= m->wh))
