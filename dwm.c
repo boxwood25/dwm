@@ -912,7 +912,7 @@ incnmaster(const Arg *arg)
 void
 incnsplit(const Arg *arg)
 {
-        int ns = MAX(selmon->nmaster + arg->i, 0);
+        int ns = MAX(selmon->nsplit + arg->i, 0);
 	selmon->nsplit = MIN(ns, 20);
 	arrange(selmon);
 }
@@ -1854,7 +1854,7 @@ tile(Monitor *m)
 	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
 	if (n == 0)
 		return;
-        nt = MAX(n - m->nsplit,  0);
+        nt = n - MIN(m->nsplit, n / 2);
 
 	if (nt > m->nmaster)
 		mw = m->nmaster ? m->ww * m->mfact : 0;
@@ -1866,11 +1866,10 @@ tile(Monitor *m)
 				h = m->wh * m->mstfact;
 			else
 				h = (m->wh - my) / (MIN(nt, m->nmaster) - i);
-			//TODO fix the if condition!
-			if (n - i <= m->nsplit) {
+			if (i >= nt - MIN(m->nsplit, n / 2)) {
 				resize(c, m->wx, m->wy + my, mw / 2 - (2*c->bw), h - (2*c->bw), 0);
 				c = nexttiled(c->next);
-				resize(c, m->wx + mw / 2, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
+				resize(c, m->wx + mw / 2, m->wy + my, mw / 2 - (2*c->bw), h - (2*c->bw), 0);
 			}else
 				resize(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
 			if (my + HEIGHT(c) < m->wh)
@@ -1880,11 +1879,11 @@ tile(Monitor *m)
 				h = m->wh * m->sstfact;
 			else
 				h = (m->wh - ty) / (nt - i);
-			if (n - i <= m->nsplit) {
+			if (i >= nt - MIN(m->nsplit, n / 2)) {
 				resize(c, m->wx + mw, m->wy + ty, (m->ww - mw) / 2 - (2*c->bw), h - (2*c->bw), 0);
                                 c = nexttiled(c->next);
 				resize(c, m->wx + mw + (m->ww - mw) / 2, m->wy + ty,
-						m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
+						(m->ww - mw) / 2 - (2*c->bw), h - (2*c->bw), 0);
 			}else
 				resize(c, m->wx + mw, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
 			if (ty + HEIGHT(c) < m->wh)
