@@ -1870,7 +1870,6 @@ tile(Monitor *m)
 			if (n - i <= m->nsplit) {
 				resize(c, m->wx, m->wy + my, mw / 2 - (2*c->bw), h - (2*c->bw), 0);
 				c = nexttiled(c->next);
-				i++;
 				resize(c, m->wx + mw / 2, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
 			}else
 				resize(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
@@ -1884,7 +1883,6 @@ tile(Monitor *m)
 			if (n - i <= m->nsplit) {
 				resize(c, m->wx + mw, m->wy + ty, (m->ww - mw) / 2 - (2*c->bw), h - (2*c->bw), 0);
                                 c = nexttiled(c->next);
-                                i++;
 				resize(c, m->wx + mw + (m->ww - mw) / 2, m->wy + ty,
 						m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
 			}else
