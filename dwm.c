@@ -193,7 +193,8 @@ static void propertynotify(XEvent *e);
 static void quit(const Arg *arg);
 static Monitor *recttomon(int x, int y, int w, int h);
 static void resize(Client *c, int x, int y, int w, int h, int interact);
-static Client *splitresize(int split, Client *c, int x, int y, int w, int h);
+static void gapresize(Monitor *m, Client *c, int x, int y, int w, int h);
+static Client *splitresize(Monitor *m, int split, Client *c, int x, int y, int w, int h);
 static void resizeclient(Client *c, int x, int y, int w, int h);
 static void resizemouse(const Arg *arg);
 static void restack(Monitor *m);
@@ -218,7 +219,6 @@ static void tagmon(const Arg *arg);
 static void thirdtile(Monitor *);
 static void thirdgaptile(Monitor *);
 static void tile(Monitor *);
-static void gaptile(Monitor *);
 static void togglebar(const Arg *arg);
 static void togglefloating(const Arg *arg);
 static void toggletag(const Arg *arg);
@@ -1221,17 +1221,46 @@ resize(Client *c, int x, int y, int w, int h, int interact)
 		resizeclient(c, x, y, w, h);
 }
 
-Client
-*splitresize(int split, Client *c, int x, int y, int w, int h)
+void
+gapresize(Monitor *m, Client *c, int x, int y, int w, int h)
+{
+	if (!m->gaps || (x == 0 && y == 0 && w == m->ww && h == m->wh))
+		resize(c, x, y, w, h, 0);
+	else {
+		int tx, ty, tw, th;
+
+		if (x == 0)
+			tx = m->gappx;
+		else
+			tx = x + m->gappx / 2;
+		ty = y + m->gappx;
+
+		/* add 3 pixels because of rounding errors */
+		if (x+w+3 >= m->ww)
+			tw = w - tx + x - m->gappx;
+		else
+			tw = w - tx + x - m->gappx / 2;
+
+		if (y+h+3 >= m->wh)
+			th = h - 2 * m->gappx;
+		else
+			th = h - 3 * m->gappx / 2;
+
+		resize(c, tx, ty, tw, th, 0);
+	}
+}
+
+Client *
+splitresize(Monitor *m, int split, Client *c, int x, int y, int w, int h)
 {
 	if (split) {
-		resize(c, x, y, w / 2, h, 0);
+		gapresize(m, c, x, y, w / 2, h);
 		c = nexttiled(c->next);
 		/* it is w - w / 2 so that it is rounded up */
-		resize(c, x + w / 2, y, w - w / 2, h, 0);
+		gapresize(m, c, x + w / 2, y, w - w / 2, h);
 	}
 	else
-		resize(c, x, y, w, h, 0);
+		gapresize(m, c, x, y, w, h);
 
 	return c;
 }
@@ -1857,12 +1886,6 @@ thirdgaptile(Monitor *m)
 void
 tile(Monitor *m)
 {
-	if(m->gaps) {
-		gaptile(m);
-		return;
-	}
-
-
 	/* nt is number of tiles, some of which can be split */
 	unsigned int i, n, nt, h, mw, my, ty;
 	/* true if the current tile is to be split in two */
@@ -1885,7 +1908,7 @@ tile(Monitor *m)
 			else
 				h = (m->wh - my) / (MIN(nt, m->nmaster) - i);
 			split = (i >= nt - MIN(m->nsplit, n / 2));
-			c = splitresize(split, c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw));
+			c = splitresize(m, split, c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw));
 			if (my + HEIGHT(c) < m->wh)
 				my += HEIGHT(c);
 		} else {
@@ -1894,61 +1917,10 @@ tile(Monitor *m)
 			else
 				h = (m->wh - ty) / (nt - i);
 			split = (i >= nt - MIN(m->nsplit, n / 2));
-			c = splitresize(split, c, m->wx + mw, m->wy + ty,
+			c = splitresize(m, split, c, m->wx + mw, m->wy + ty,
 					m->ww - mw - (2*c->bw), h - (2*c->bw));
 			if (ty + HEIGHT(c) < m->wh)
 				ty += HEIGHT(c);
-		}
-}
-
-void
-gaptile(Monitor *m)
-{
-	/* nt is number of tiles, some of which can be split */
-        unsigned int i, n, nt, h, mw, my, ty, ns;
-	/* true if the current tile is to be split in two */
-	int split;
-	Client *c;
-
-	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
-	if (n == 0)
-		return;
-	if(n == 1){
-		c = nexttiled(m->clients);
-		resize(c, m->wx, m->wy, m->ww - 2 * c->bw, m->wh - 2 * c->bw, 0);
-		return;
-	}
-        nt = n - MIN(m->nsplit, n / 2);
-
-	if (nt > m->nmaster) {
-		mw = m->nmaster ? m->ww * m->mfact : 0;
-		ns = m->nmaster > 0 ? 2 : 1;
-	}
-	else{
-		mw = m->ww;
-		ns = 1;
-	}
-	for (i = 0, my = ty = m->gappx, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
-		if (i < m->nmaster) {
-			if (!m->evenness && m->nmaster > 1 && i == 0)
-				h = (m->wh - my) * m->mstfact - m->gappx;
-			else
-				h = (m->wh - my) / (MIN(nt, m->nmaster) - i) - m->gappx;
-			split = (i >= nt - MIN(m->nsplit, n / 2));
-			c = splitresize(split, c, m->wx + m->gappx, m->wy + my,
-					mw - 2*c->bw - m->gappx*(5-ns)/2, h - 2*c->bw);
-			if(my + HEIGHT(c) + m->gappx < m->wh)
-				my += HEIGHT(c) + m->gappx;
-		} else {
-			if (!m->evenness && nt - m->nmaster > 1 && i == m->nmaster)
-				h = (m->wh - ty) * m->sstfact - m->gappx;
-			else
-				h = (m->wh - ty) / (nt - i) - m->gappx;
-			split = (i >= nt - MIN(m->nsplit, n / 2));
-			c = splitresize(split, c, m->wx + mw + m->gappx/ns, m->wy + ty,
-					m->ww - mw - (2*c->bw) - m->gappx*(5-ns)/2, h - 2*c->bw);
-			if(ty + HEIGHT(c) + m->gappx < m->wh)
-				ty += HEIGHT(c) + m->gappx;
 		}
 }
 
