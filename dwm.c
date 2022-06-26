@@ -1869,7 +1869,8 @@ tile(Monitor *m)
 			if (i >= nt - MIN(m->nsplit, n / 2)) {
 				resize(c, m->wx, m->wy + my, mw / 2 - (2*c->bw), h - (2*c->bw), 0);
 				c = nexttiled(c->next);
-				resize(c, m->wx + mw / 2, m->wy + my, mw / 2 - (2*c->bw), h - (2*c->bw), 0);
+				resize(c, m->wx + mw / 2, m->wy + my,
+						mw / 2 - (2*c->bw), h - (2*c->bw), 0);
 			}else
 				resize(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
 			if (my + HEIGHT(c) < m->wh)
@@ -1880,12 +1881,14 @@ tile(Monitor *m)
 			else
 				h = (m->wh - ty) / (nt - i);
 			if (i >= nt - MIN(m->nsplit, n / 2)) {
-				resize(c, m->wx + mw, m->wy + ty, (m->ww - mw) / 2 - (2*c->bw), h - (2*c->bw), 0);
+				resize(c, m->wx + mw, m->wy + ty,
+						(m->ww - mw) / 2 - (2*c->bw), h - (2*c->bw), 0);
                                 c = nexttiled(c->next);
 				resize(c, m->wx + mw + (m->ww - mw) / 2, m->wy + ty,
 						(m->ww - mw) / 2 - (2*c->bw), h - (2*c->bw), 0);
 			}else
-				resize(c, m->wx + mw, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
+				resize(c, m->wx + mw, m->wy + ty,
+						m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
 			if (ty + HEIGHT(c) < m->wh)
 				ty += HEIGHT(c);
 		}
@@ -1894,7 +1897,8 @@ tile(Monitor *m)
 void
 gaptile(Monitor *m)
 {
-        unsigned int i, n, h, mw, my, ty, ns;
+	/* nt is number of tiles, some of which can be split */
+        unsigned int i, n, nt, h, mw, my, ty, ns;
 	Client *c;
 
 	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
@@ -1905,8 +1909,9 @@ gaptile(Monitor *m)
 		resize(c, m->wx, m->wy, m->ww - 2 * c->bw, m->wh - 2 * c->bw, 0);
 		return;
 	}
+        nt = n - MIN(m->nsplit, n / 2);
 
-	if (n > m->nmaster) {
+	if (nt > m->nmaster) {
 		mw = m->nmaster ? m->ww * m->mfact : 0;
 		ns = m->nmaster > 0 ? 2 : 1;
 	}
@@ -1919,18 +1924,32 @@ gaptile(Monitor *m)
 			if (!m->evenness && m->nmaster > 1 && i == 0)
 				h = (m->wh - my) * m->mstfact - m->gappx;
 			else
-				h = (m->wh - my) / (MIN(n, m->nmaster) - i) - m->gappx;
-			resize(c, m->wx + m->gappx, m->wy + my,
-                                mw - 2*c->bw - m->gappx*(5-ns)/2, h - 2*c->bw, 0);
+				h = (m->wh - my) / (MIN(nt, m->nmaster) - i) - m->gappx;
+			if (i >= nt - MIN(m->nsplit, n / 2)) {
+				resize(c, m->wx + m->gappx, m->wy + my,
+					mw / 2 - (2*c->bw) - m->gappx, h - (2*c->bw), 0);
+				c = nexttiled(c->next);
+				resize(c, m->wx + mw / 2, m->wy + my,
+					mw / 2 - (2*c->bw) - m->gappx*(3-ns)/2, h - (2*c->bw), 0);
+			}else
+				resize(c, m->wx + m->gappx, m->wy + my,
+					mw - 2*c->bw - m->gappx*(5-ns)/2, h - 2*c->bw, 0);
 			if(my + HEIGHT(c) + m->gappx < m->wh)
 				my += HEIGHT(c) + m->gappx;
 		} else {
-			if (!m->evenness && n - m->nmaster > 1 && i == m->nmaster)
+			if (!m->evenness && nt - m->nmaster > 1 && i == m->nmaster)
 				h = (m->wh - ty) * m->sstfact - m->gappx;
 			else
-				h = (m->wh - ty) / (n - i) - m->gappx;
-			resize(c, m->wx + mw + m->gappx/ns, m->wy + ty,
-                                m->ww - mw - (2*c->bw) - m->gappx*(5-ns)/2, h - 2*c->bw, 0);
+				h = (m->wh - ty) / (nt - i) - m->gappx;
+			if (i >= nt - MIN(m->nsplit, n / 2)) {
+				resize(c, m->wx + mw + m->gappx/ns, m->wy + ty,
+						(m->ww - mw) / 2 - (2*c->bw) - m->gappx/ns, h - (2*c->bw), 0);
+                                c = nexttiled(c->next);
+				resize(c, m->wx + mw + (m->ww - mw) / 2, m->wy + ty,
+						(m->ww - mw) / 2 - (2*c->bw) - m->gappx, h - (2*c->bw), 0);
+			}else
+				resize(c, m->wx + mw + m->gappx/ns, m->wy + ty,
+					m->ww - mw - (2*c->bw) - m->gappx*(5-ns)/2, h - 2*c->bw, 0);
 			if(ty + HEIGHT(c) + m->gappx < m->wh)
 				ty += HEIGHT(c) + m->gappx;
 		}
