@@ -1224,18 +1224,15 @@ resize(Client *c, int x, int y, int w, int h, int interact)
 void
 gapresize(Monitor *m, Client *c, int x, int y, int w, int h)
 {
-	w += 2 * c->bw;
-	h += 2 * c->bw;
-
 	/* it is often necessary add 3 pixels
          * of tolerance for rounding errors */
 	if (!m->gaps || (x == m->wx && y == m->wy && w+3 >= m->ww && h+3 >= m->wh))
-		resize(c, x, y, w, h, 0);
+		resize(c, x, y, w - 2*c->bw, h - 2*c->bw, 0);
 	else {
 		int tx, ty, tw, th;
 
 		if (x == m->wx)
-			tx = m->wx + m->gappx;
+			tx = x + m->gappx;
 		else
 			tx = x + m->gappx / 2;
 		ty = y + m->gappx;
@@ -1250,6 +1247,9 @@ gapresize(Monitor *m, Client *c, int x, int y, int w, int h)
 		else
 			th = h - 3 * m->gappx / 2;
 
+
+                tw -= 2 * c->bw;
+                th -= 2 * c->bw;
 		resize(c, tx, ty, tw, th, 0);
 	}
 }
@@ -1912,9 +1912,9 @@ tile(Monitor *m)
 			else
 				h = (m->wh - my) / (MIN(nt, m->nmaster) - i);
 			split = (i >= nt - MIN(m->nsplit, n / 2));
-			c = splitresize(m, split, c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw));
+			c = splitresize(m, split, c, m->wx, m->wy + my, mw, h);
 			if (my + HEIGHT(c) < m->wh)
-				my += HEIGHT(c);
+				my += HEIGHT(c) + m->gaps * m->gappx;
 		} else {
 			if (!m->evenness && nt - m->nmaster > 1 && i == m->nmaster)
 				h = m->wh * m->sstfact;
@@ -1922,9 +1922,9 @@ tile(Monitor *m)
 				h = (m->wh - ty) / (nt - i);
 			split = (i >= nt - MIN(m->nsplit, n / 2));
 			c = splitresize(m, split, c, m->wx + mw, m->wy + ty,
-					m->ww - mw - (2*c->bw), h - (2*c->bw));
+					m->ww - mw, h);
 			if (ty + HEIGHT(c) < m->wh)
-				ty += HEIGHT(c);
+				ty += HEIGHT(c) + m->gaps * m->gappx;
 		}
 }
 
