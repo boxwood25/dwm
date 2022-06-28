@@ -218,6 +218,7 @@ static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
 static void thirdtile(Monitor *);
 static void tile(Monitor *);
+static void binarytile(Monitor *m);
 static void togglebar(const Arg *arg);
 static void togglefloating(const Arg *arg);
 static void toggletag(const Arg *arg);
@@ -1832,6 +1833,37 @@ tile(Monitor *m)
 			if (ty + HEIGHT(c) < m->wh)
 				ty += HEIGHT(c) + m->gaps * m->gappx;
 		}
+}
+
+void
+binarytile(Monitor *m)
+{
+	unsigned int i, x, y, w, h, n;
+	Client *c;
+
+	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
+	if (n == 0)
+		return;
+
+	x = m->wx;
+	y = m->wy;
+	w = m->ww;
+	h = m->wh;
+	for (i = 0, c = nexttiled(m->clients); i+1 < n; c = nexttiled(c->next), i++) {
+		if (i%2 == 0)
+			w /= 2;
+		else
+			h = (m->wh - y + m->wy) / 2;
+
+		gapresize(m, c, x, y, w, h);
+
+		if (i%2 == 0)
+			x += w;
+		else if (y + HEIGHT(c) < m->wh)
+			y += HEIGHT(c) + m->gaps * m->gappx;
+	}
+
+	gapresize(m, c, x, y, w, h);
 }
 
 void
