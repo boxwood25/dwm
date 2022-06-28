@@ -216,8 +216,9 @@ static void sigchld(int unused);
 static void spawn(const Arg *arg);
 static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
-static void thirdtile(Monitor *);
-static void tile(Monitor *);
+static void thirdtile(Monitor *m);
+static void tile(Monitor *m);
+static Client *tilearea(Monitor *m, Client *c, int n, int x, int y, int w, int h, float fact);
 static void binarytile(Monitor *m);
 static void togglebar(const Arg *arg);
 static void togglefloating(const Arg *arg);
@@ -1724,9 +1725,7 @@ tagmon(const Arg *arg)
 void
 thirdtile(Monitor *m)
 {
-        /* sy and ty are second area y and third area y,
-         * same for sw and tw */
-	unsigned int i, n, nsecond, h, mw, my, sw, sy, tw, ty;
+	unsigned int n, nsecond, mw, sw, tw;
 	Client *c;
 
 	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
@@ -1765,33 +1764,19 @@ thirdtile(Monitor *m)
 
         tw = m->ww - mw - sw;
 
-	for (i = my = sy = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
-		if (i < m->nmaster) {
-			if (!m->evenness && m->nmaster > 1 && i == 0)
-				h = m->wh * m->mstfact;
-			else
-				h = (m->wh - my) / (MIN(n, m->nmaster) - i);
-			gapresize(m, c, m->wx + tw, m->wy + my, mw, h);
-			if (my + HEIGHT(c) < m->wh)
-				my += HEIGHT(c) + m->gaps * m->gappx;
-		} else if(i < m->nmaster + nsecond) {
-			if (!m->evenness && nsecond > 1 && i == m->nmaster)
-				h = m->wh * m->sstfact;
-			else
-				h = (m->wh - sy) / (m->nmaster + nsecond - i);
-			gapresize(m, c, m->wx + tw + mw, m->wy + sy, sw, h);
-			if (sy + HEIGHT(c) < m->wh)
-				sy += HEIGHT(c) + m->gaps * m->gappx;
-		} else {
-			if (!m->evenness && n - m->nmaster - nsecond > 1
-                                && i == m->nmaster + nsecond)
-				h = m->wh * m->tstfact;
-			else
-				h = (m->wh - ty) / (n - i);
-			gapresize(m, c, m->wx, m->wy + ty, tw, h);
-			if (ty + HEIGHT(c) < m->wh)
-				ty += HEIGHT(c) + m->gaps * m->gappx;
-                }
+	
+	c = tilearea(m, nexttiled(m->clients), MIN(m->nmaster, n),
+			m->wx + tw, m->wy, mw, m->wh, m->mstfact);
+	if(n <= m->nmaster)
+		return;
+	
+	c = tilearea(m, nexttiled(c), nsecond,
+			m->wx + tw + mw, m->wy, sw, m->wh, m->sstfact);
+	if(n == m->nmaster + nsecond)
+		return;
+	
+	tilearea(m, nexttiled(c), n - m->nmaster - nsecond,
+			m->wx, m->wy, tw, m->wh, m->tstfact);
 }
 
 void
@@ -1833,6 +1818,24 @@ tile(Monitor *m)
 			if (ty + HEIGHT(c) < m->wh)
 				ty += HEIGHT(c) + m->gaps * m->gappx;
 		}
+}
+
+Client
+*tilearea(Monitor *m, Client *c, int n, int x, int y, int w, int h, float fact)
+{
+	int i, ty, th;
+
+	for (i = ty = 0; i < n && c; c = nexttiled(c->next), i++) {
+		if (!m->evenness && n > 1 && i == 0)
+			th = h * fact;
+		else
+			th = (h - ty) / (n - i);
+		gapresize(m, c, x, y + ty, w, th);
+		if (ty + HEIGHT(c) < h)
+			ty += HEIGHT(c) + m->gaps * m->gappx;
+	}
+
+	return c;
 }
 
 void
