@@ -1851,6 +1851,7 @@ binarytile(Monitor *m)
 {
 	unsigned int i, x, y, w, h, n;
 	Client *c;
+        int vert = m->wh > m->ww;
 
 	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
 	if (n == 0)
@@ -1861,14 +1862,14 @@ binarytile(Monitor *m)
 	w = m->ww;
 	h = m->wh;
 	for (i = 0, c = nexttiled(m->clients); i+1 < n; c = nexttiled(c->next), i++) {
-		if (i%2 == 0)
+		if (i%2 == vert)
 			w /= 2;
 		else
 			h /= 2;
 
 		gapresize(m, c, x, y, w, h);
 
-		if (i%2 == 0)
+		if (i%2 == vert)
 			x += w;
 		else
 			y += h;
