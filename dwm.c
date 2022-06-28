@@ -19,7 +19,7 @@
  * Keys and tagging rules are organized as arrays and defined in config.h.
  *
  * To understand everything else, start reading main().
- */
+*/
 #include <errno.h>
 #include <locale.h>
 #include <signal.h>
@@ -1231,22 +1231,27 @@ gapresize(Monitor *m, Client *c, int x, int y, int w, int h)
 		resize(c, x, y, w - 2*c->bw, h - 2*c->bw, 0);
 	else {
 		int tx, ty, tw, th;
+                int gh = m->gappx / 2;
 
 		if (x == m->wx)
 			tx = x + m->gappx;
 		else
-			tx = x + m->gappx / 2;
-		ty = y + m->gappx;
+			tx = x + gh;
+
+                if (y == m->wy)
+			ty = y + m->gappx;
+		else
+			ty = y + gh;
 
 		if (x-m->wx+w+3 >= m->ww)
 			tw = w - tx + x - m->gappx;
 		else
-			tw = w - tx + x - m->gappx / 2;
+			tw = w - tx + x - gh;
 
 		if (y-m->wy+h+3 >= m->wh)
-			th = h - 2 * m->gappx;
+			th = h - ty + y - m->gappx;
 		else
-			th = h - 3 * m->gappx / 2;
+			th = h - ty + y - gh;
 
 
                 tw -= 2 * c->bw;
@@ -1797,6 +1802,8 @@ tile(Monitor *m)
 		mw = m->nmaster ? m->ww * m->mfact : 0;
 	else
 		mw = m->ww;
+
+        int gh = m->gaps * m->gappx / 2;
 	for (i = my = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
 		if (i < m->nmaster) {
 			if (!m->evenness && m->nmaster > 1 && i == 0)
@@ -1806,7 +1813,7 @@ tile(Monitor *m)
 			split = (i >= nt - MIN(m->nsplit, n / 2));
 			c = splitresize(m, split, c, m->wx, m->wy + my, mw, h);
 			if (my + HEIGHT(c) < m->wh)
-				my += HEIGHT(c) + m->gaps * m->gappx;
+				my += HEIGHT(c) + (3 - MIN(1, i)) * gh;
 		} else {
 			if (!m->evenness && nt - m->nmaster > 1 && i == m->nmaster)
 				h = m->wh * m->sstfact;
@@ -1816,7 +1823,7 @@ tile(Monitor *m)
 			c = splitresize(m, split, c, m->wx + mw, m->wy + ty,
 					m->ww - mw, h);
 			if (ty + HEIGHT(c) < m->wh)
-				ty += HEIGHT(c) + m->gaps * m->gappx;
+				ty += HEIGHT(c) + (3 - MIN(1, i-m->nmaster)) * gh;
 		}
 }
 
@@ -1825,6 +1832,7 @@ Client
 {
 	int i, ty, th;
 
+        int gh = m->gaps * m->gappx / 2;
 	for (i = ty = 0; i < n && c; c = nexttiled(c->next), i++) {
 		if (!m->evenness && n > 1 && i == 0)
 			th = h * fact;
@@ -1832,7 +1840,7 @@ Client
 			th = (h - ty) / (n - i);
 		gapresize(m, c, x, y + ty, w, th);
 		if (ty + HEIGHT(c) < h)
-			ty += HEIGHT(c) + m->gaps * m->gappx;
+			ty += HEIGHT(c) + (3 - MIN(1, i)) * gh;
 	}
 
 	return c;
