@@ -1853,14 +1853,14 @@ binarytile(Monitor *m)
 		if (i%2 == 0)
 			w /= 2;
 		else
-			h = (m->wh - y + m->wy) / 2;
+			h /= 2;
 
 		gapresize(m, c, x, y, w, h);
 
 		if (i%2 == 0)
 			x += w;
-		else if (y + HEIGHT(c) < m->wh)
-			y += HEIGHT(c) + m->gaps * m->gappx;
+		else
+			y += h;
 	}
 
 	gapresize(m, c, x, y, w, h);
