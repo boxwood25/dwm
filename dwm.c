@@ -2322,8 +2322,8 @@ main(int argc, char *argv[])
 	displays[2].name = "DisplayPort-0";
 	displays[2].barname = "dp";
 	displays[2].rotation = "right";
-	displays[1].w = 1080;
-	displays[1].y = 0;
+	displays[2].w = 1080;
+	displays[2].y = 0;
 	displays[2].ison = 1;
 
 	setup();

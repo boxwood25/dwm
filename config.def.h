@@ -288,10 +288,10 @@ void
 displayoff(const Arg *arg) {
 	char cmd[128];
 	strcpy(cmd, "xrandr --output ");
-
 	strcat(cmd, displays[optdisplay[arg->i]].name);
-
 	system(strcat(cmd, " --off"));
+
+        displays[optdisplay[arg->i]].ison = 0;
 }
 
 void
@@ -313,6 +313,8 @@ displayon(const Arg *arg) {
 	strcat(cmd, displays[optdisplay[arg->i]].rotation);
 
 	system(cmd);
+
+        displays[optdisplay[arg->i]].ison = 1;
 
 
 	unsigned int x;
