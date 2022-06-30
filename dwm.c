@@ -2306,25 +2306,7 @@ main(int argc, char *argv[])
             exit(0);
         }
 
-	/* setup monitor information */
-	displays[0].name = "eDP";
-	displays[0].barname = "edp";
-	displays[0].rotation = "normal";
-	displays[0].w = 1920;
-	displays[0].y = 350;
-	displays[0].ison = 1;
-	displays[1].name = "HDMI-A-0";
-	displays[1].barname = "hdmi";
-	displays[1].rotation = "normal";
-	displays[1].w = 1920;
-	displays[1].y = 350;
-	displays[1].ison = 1;
-	displays[2].name = "DisplayPort-0";
-	displays[2].barname = "dp";
-	displays[2].rotation = "right";
-	displays[2].w = 1080;
-	displays[2].y = 0;
-	displays[2].ison = 1;
+        setupmonitorinfo();
 
 	setup();
 #ifdef __OpenBSD__
