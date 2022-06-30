@@ -1,3 +1,4 @@
+#include <stdlib.h>
 /* See LICENSE file for copyright and license details. */
 
 /* appearance */
@@ -97,9 +98,14 @@ static void togglemicmute(const Arg *arg);
 /* bluetooth device to optionally connect to */
 static const char btdevice[] = "00:13:EF:A0:08:DC";
 
-/* displays */
-static const char maindisplay[] = "HDMI-A-0";
-static const char *optdisplay[2] = { "eDP", "DisplayPort-0" };
+/* monitors */
+typedef struct {
+	char *name, *barname, *rotation;
+	unsigned int w, y, ison;
+} MonitorInfo;
+static MonitorInfo displays[3];
+static const unsigned int maindisplay = 1;
+static const unsigned int optdisplay[2] = { 0, 2};
 
 /* mic mute status */
 static int micmute = 1;
@@ -281,32 +287,57 @@ bluetooth(const Arg *arg) {
 
 void
 displayoff(const Arg *arg) {
-    char cmd[128];
-    strcpy(cmd, "xrandr --output ");
+	char cmd[128];
+	strcpy(cmd, "xrandr --output ");
 
-    strcat(cmd, optdisplay[arg->i]);
+	strcat(cmd, displays[optdisplay[arg->i]].name);
 
-    system(strcat(cmd, " --off"));
+	system(strcat(cmd, " --off"));
 }
 
 void
 displayon(const Arg *arg) {
-    char cmd[128];
-    strcpy(cmd, "xrandr --output ");
-    strcat(cmd, optdisplay[arg->i]);
-    strcat(cmd, " --auto ");
+	char *name = displays[optdisplay[arg->i]].name;
 
-    if (arg->i == 0)
-	    strcat(cmd, " --left-of ");
-    else
-	    strcat(cmd, " --right-of ");
+	char cmd[128];
+	strcpy(cmd, "xrandr --output ");
+	strcat(cmd, name);
+	strcat(cmd, " --auto ");
 
-    strcat(cmd, maindisplay);
+	if (arg->i == 0)
+		strcat(cmd, " --left-of ");
+	else
+		strcat(cmd, " --right-of ");
+	strcat(cmd, displays[maindisplay].name);
 
-    if (arg->i == 1)
-	    strcat(cmd, " --rotate right");
+	strcat(cmd, " --rotate ");
+	strcat(cmd, displays[optdisplay[arg->i]].rotation);
 
-    system(cmd);
+	system(cmd);
+
+
+	unsigned int x;
+	for (int i = x = 0; i < sizeof(displays)/sizeof(displays[0]); i++) {
+		if (!displays[0].ison)
+			continue;
+
+		strcpy(cmd, "xrandr --output ");
+		strcat(cmd, displays[i].name);
+		strcat(cmd, " --pos ");
+		strcat(cmd, itoa(x));
+		strcat(cmd, "x");
+		system(strcat(cmd, itoa(displays[i].y)));
+
+		x += displays[i].w;
+	}
+
+
+	if (fork() == 0) {
+		strcpy(cmd, "polybar ");
+		strcat(cmd, displays[optdisplay[arg->i]].barname);
+		system(cmd);
+		exit(0);
+	}
 }
 
 void
@@ -352,3 +383,4 @@ togglemicmute(const Arg *arg)
 
 	system(cmd);
 }
+

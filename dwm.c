@@ -2306,6 +2306,26 @@ main(int argc, char *argv[])
             exit(0);
         }
 
+	/* setup monitor information */
+	strcpy(displays[0].name, "eDP");
+	strcpy(displays[0].barname, "edp");
+	strcpy(displays[0].rotation, "normal");
+	displays[0].w = 1920;
+	displays[0].y = 350;
+	displays[0].ison = 1;
+	strcpy(displays[1].name, "HDMI-A-0");
+	strcpy(displays[1].barname, "hdmi");
+	strcpy(displays[1].rotation, "normal");
+	displays[1].w = 1920;
+	displays[1].y = 350;
+	displays[1].ison = 1;
+	strcpy(displays[2].name, "DisplayPort-0");
+	strcpy(displays[2].barname, "dp");
+	strcpy(displays[2].rotation, "right");
+	displays[1].w = 1080;
+	displays[1].y = 0;
+	displays[2].ison = 1;
+
 	setup();
 #ifdef __OpenBSD__
 	if (pledge("stdio rpath proc exec", NULL) == -1)
