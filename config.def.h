@@ -1,4 +1,3 @@
-#include <stdlib.h>
 /* See LICENSE file for copyright and license details. */
 
 /* appearance */
@@ -324,9 +323,12 @@ displayon(const Arg *arg) {
 		strcpy(cmd, "xrandr --output ");
 		strcat(cmd, displays[i].name);
 		strcat(cmd, " --pos ");
-		strcat(cmd, itoa(x));
+                char strval[8];
+                sprintf(strval, "%d", x);
+		strcat(cmd, strval);
 		strcat(cmd, "x");
-		system(strcat(cmd, itoa(displays[i].y)));
+                sprintf(strval, "%d", displays[i].y);
+		system(strcat(cmd, strval));
 
 		x += displays[i].w;
 	}
