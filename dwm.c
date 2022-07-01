@@ -1591,17 +1591,19 @@ setbinfact(int vert, float argf)
 	if (!(selmon->lt[selmon->sellt]->arrange == binarytile))
 		return;
 
+        int monvert = selmon->wh > selmon->ww;
+
         float *binfact;
         /* find out the index of the selected client */
         int i;
         Client *c;
         for (i = 0, c = nexttiled(selmon->clients); c != selmon->sel; c = nexttiled(c->next), i++);
 
-	if (vert)
+	if (vert != monvert)
 		i++;
 	i /= 2;
 	i *= 2;
-	if (vert)
+	if (vert != monvert)
 		i = MAX(i-1, 1);
 
 	if (i > sizeof(selmon->binfact)/sizeof(selmon->binfact[0]))
