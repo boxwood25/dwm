@@ -1905,6 +1905,8 @@ binarytile(Monitor *m)
 			y += h;
 	}
 
+	w = w2;
+	h = h2;
 	gapresize(m, c, x, y, w, h);
 }
 
