@@ -218,7 +218,7 @@ static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
 static void thirdtile(Monitor *m);
 static void tile(Monitor *m);
-static Client *tilearea(Monitor *m, Client *c, int n, int x, int y, int w, int h, float fact);
+static Client *tilearea(Monitor *m, Client *c, int n, int nsplit, int x, int y, int w, int h, float fact);
 static void binarytile(Monitor *m);
 static void togglebar(const Arg *arg);
 static void togglefloating(const Arg *arg);
@@ -1770,17 +1770,17 @@ thirdtile(Monitor *m)
         tw = m->ww - mw - sw;
 
 	
-	c = tilearea(m, nexttiled(m->clients), MIN(m->nmaster, n),
+	c = tilearea(m, nexttiled(m->clients), MIN(m->nmaster, n), 0,
 			m->wx + tw, m->wy, mw, m->wh, m->mstfact);
-	if(n <= m->nmaster)
+	if (n <= m->nmaster)
 		return;
 	
-	c = tilearea(m, nexttiled(c), nsecond,
+	c = tilearea(m, c, nsecond, 0,
 			m->wx + tw + mw, m->wy, sw, m->wh, m->sstfact);
-	if(n == m->nmaster + nsecond)
+	if (n == m->nmaster + nsecond)
 		return;
 	
-	tilearea(m, nexttiled(c), n - m->nmaster - nsecond,
+	tilearea(m, c, n - m->nmaster - nsecond, 0,
 			m->wx, m->wy, tw, m->wh, m->tstfact);
 }
 
@@ -1788,9 +1788,7 @@ void
 tile(Monitor *m)
 {
 	/* nt is number of tiles, some of which can be split */
-	unsigned int i, n, nt, h, mw, my, ty;
-	/* true if the current tile is to be split in two */
-	int split;
+	unsigned int n, nt, mw;
 	Client *c;
 
 	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
@@ -1803,32 +1801,18 @@ tile(Monitor *m)
 	else
 		mw = m->ww;
 
-        int gh = m->gaps * m->gappx / 2;
-	for (i = my = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
-		if (i < m->nmaster) {
-			if (!m->evenness && m->nmaster > 1 && i == 0)
-				h = m->wh * m->mstfact;
-			else
-				h = (m->wh - my) / (MIN(nt, m->nmaster) - i);
-			split = (i >= nt - MIN(m->nsplit, n / 2));
-			c = splitresize(m, split, c, m->wx, m->wy + my, mw, h);
-			if (my + HEIGHT(c) < m->wh)
-				my += HEIGHT(c) + (3 - MIN(1, i)) * gh;
-		} else {
-			if (!m->evenness && nt - m->nmaster > 1 && i == m->nmaster)
-				h = m->wh * m->sstfact;
-			else
-				h = (m->wh - ty) / (nt - i);
-			split = (i >= nt - MIN(m->nsplit, n / 2));
-			c = splitresize(m, split, c, m->wx + mw, m->wy + ty,
-					m->ww - mw, h);
-			if (ty + HEIGHT(c) < m->wh)
-				ty += HEIGHT(c) + (3 - MIN(1, i-m->nmaster)) * gh;
-		}
+
+        c = tilearea(m, nexttiled(m->clients), MIN(m->nmaster, nt), MIN(m->nsplit, n / 2) - nt + m->nmaster,
+			m->wx, m->wy, mw, m->wh, m->mstfact);
+	if (n <= m->nmaster)
+		return;
+
+	c = tilearea(m, nexttiled(c), nt - m->nmaster, m->nsplit,
+			m->wx + mw, m->wy, m->ww - mw, m->wh, m->sstfact);
 }
 
 Client
-*tilearea(Monitor *m, Client *c, int n, int x, int y, int w, int h, float fact)
+*tilearea(Monitor *m, Client *c, int n, int nsplit, int x, int y, int w, int h, float fact)
 {
 	int i, ty, th;
 
@@ -1838,7 +1822,9 @@ Client
 			th = h * fact;
 		else
 			th = (h - ty) / (n - i);
-		gapresize(m, c, x, y + ty, w, th);
+
+		c = splitresize(m, n-i <= nsplit, c, x, y + ty, w, th);
+		//TODO check both window heights in case of a split!
 		if (ty + HEIGHT(c) < h)
 			ty += HEIGHT(c) + (3 - MIN(1, i)) * gh;
 	}
