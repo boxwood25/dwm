@@ -209,6 +209,7 @@ static void setlayout(const Arg *arg);
 static void setmfact(const Arg *arg);
 static void setsfact(const Arg *arg);
 static void setstfact(const Arg *arg);
+static void setbinfact(int vert, float argf);
 static void setup(void);
 static void seturgent(Client *c, int urg);
 static void showhide(Client *c);
@@ -1538,7 +1539,7 @@ setsfact(const Arg *arg)
 {
 	float f;
 
-	if (!arg || !selmon->lt[selmon->sellt]->arrange)
+	if (!arg || !(selmon->lt[selmon->sellt]->arrange == thirdtile) || selmon->symmetry)
 		return;
 	f = arg->f < 1.0 ? arg->f + selmon->sfact : arg->f - 1.0;
 	if (f < 0.05 || f + selmon->mfact > 0.95)
@@ -1556,9 +1557,9 @@ setstfact(const Arg *arg)
 
 	float *stfact;
 	/* find out the index of the selected client */
-	int n, i = 0;
+	int n, i;
         Client *c;
-	for (n = 0, c = nexttiled(selmon->clients); c; c = nexttiled(c->next), n++)
+	for (n = i = 0, c = nexttiled(selmon->clients); c; c = nexttiled(c->next), n++)
 		if (c == selmon->sel)
 			i = n;
 
@@ -1576,12 +1577,41 @@ setstfact(const Arg *arg)
 	else
 		stfact = &selmon->tstfact;
 
-	float f;
-
-	f = arg->f < 1.0 ? arg->f + *stfact : arg->f - 1.0;
+	float f = arg->f < 1.0 ? arg->f + *stfact : arg->f - 1.0;
 	if (f < 0.05 || f > 0.95)
 		return;
 	*stfact = f;
+
+	arrange(selmon);
+}
+
+void
+setbinfact(int vert, float argf)
+{
+	if (!(selmon->lt[selmon->sellt]->arrange == binarytile))
+		return;
+
+        float *binfact;
+        /* find out the index of the selected client */
+        int i;
+        Client *c;
+        for (i = 0, c = nexttiled(selmon->clients); c != selmon->sel; c = nexttiled(c->next), i++);
+
+	if (vert)
+		i++;
+	i /= 2;
+	i *= 2;
+	if (vert)
+		i = MAX(i-1, 1);
+
+	if (i > sizeof(selmon->binfact)/sizeof(selmon->binfact[0]))
+		return;
+        binfact = &selmon->binfact[i];
+
+	float f = argf < 1.0 ? argf + *binfact : argf - 1.0;
+	if (f < 0.05 || f > 0.95)
+		return;
+	*binfact = f;
 
 	arrange(selmon);
 }
@@ -1854,14 +1884,16 @@ binarytile(Monitor *m)
 		h = h2;
 
 		if (i%2 == vert) {
-			w /= 2;
 			if (i < sizeof(m->binfact)/sizeof(m->binfact[0]))
 				w *= m->binfact[i];
+                        else
+				w /= 2;
 			w2 -= w;
 		}else {
-			h /= 2;
 			if (i < sizeof(m->binfact)/sizeof(m->binfact[0]))
 				h *= m->binfact[i];
+                        else
+				h /= 2;
 			h2 -= h;
 		}
 

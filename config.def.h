@@ -67,7 +67,7 @@ static const int nmaster     = 1;    /* number of clients in master area */
 /* number of places where there would be one client, but there are two (horizontally) */
 static const int nsplit      = 0;
 /* relative factors of the first 8 areas in the binary tile layout */
-static const float binfact[] = { 1, 1, 1, 1, 1, 1, 1, 1 };
+static const float binfact[] = { 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5 };
 static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
 static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
 
@@ -89,13 +89,15 @@ static void suspend(const Arg *arg);
 static void night(const Arg *arg);
 static void nextwallpaper(const Arg *arg);
 static void bluetooth(const Arg *arg);
+static void togglemicmute(const Arg *arg);
 static void displayoff(const Arg *arg);
 static void displayon(const Arg *arg);
+static void sethfact(const Arg *arg);
+static void setvfact(const Arg *arg);
 static void togglesym(const Arg *arg);
 static void toggleevenness(const Arg *arg);
 static void togglegaps(const Arg *arg);
 static void setgaps(const Arg *arg);
-static void togglemicmute(const Arg *arg);
 
 /* bluetooth device to optionally connect to */
 static const char btdevice[] = "00:13:EF:A0:08:DC";
@@ -161,12 +163,12 @@ static Key keys[] = {
 	{ MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
 	{ MODKEY|ShiftMask,             XK_i,      incnsplit,      {.i = +1 } },
 	{ MODKEY|ShiftMask,             XK_d,      incnsplit,      {.i = -1 } },
-	{ MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
-	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
+	{ MODKEY,                       XK_h,      sethfact,       {.f = -0.05} },
+	{ MODKEY,                       XK_l,      sethfact,       {.f = +0.05} },
 	{ MODKEY|ShiftMask,             XK_h,      setsfact,       {.f = -0.05} },
 	{ MODKEY|ShiftMask,             XK_l,      setsfact,       {.f = +0.05} },
-	{ MODKEY|ShiftMask,             XK_k,      setstfact,      {.f = -0.05} },
-	{ MODKEY|ShiftMask,             XK_j,      setstfact,      {.f = +0.05} },
+	{ MODKEY|ShiftMask,             XK_k,      setvfact,       {.f = -0.05} },
+	{ MODKEY|ShiftMask,             XK_j,      setvfact,       {.f = +0.05} },
         { MODKEY,                       XK_s,      togglesym,      {0} },
         { MODKEY,                       XK_e,      toggleevenness, {0} },
 	{ MODKEY,                       XK_Return, zoom,           {0} },
@@ -310,6 +312,19 @@ bluetooth(const Arg *arg) {
 }
 
 void
+togglemicmute(const Arg *arg)
+{
+	micmute = !micmute;
+
+	char cmd[64];
+	strcpy(cmd, "pactl set-source-mute $(pactl get-default-source) ");
+	
+	strcat(cmd, micmute ? "1" : "0");
+
+	system(cmd);
+}
+
+void
 displayoff(const Arg *arg) {
 	char cmd[128];
 	strcpy(cmd, "xrandr --output ");
@@ -370,6 +385,24 @@ displayon(const Arg *arg) {
 }
 
 void
+sethfact(const Arg *arg)
+{
+	if (selmon->lt[selmon->sellt]->arrange == binarytile)
+		setbinfact(0, arg->f);
+	else
+		setmfact(arg);
+}
+
+void
+setvfact(const Arg *arg)
+{
+	if (selmon->lt[selmon->sellt]->arrange == binarytile)
+		setbinfact(1, arg->f);
+	else
+		setstfact(arg);
+}
+
+void
 togglesym(const Arg *arg)
 {
 	selmon->symmetry = !selmon->symmetry;
@@ -399,17 +432,3 @@ setgaps(const Arg *arg)
 	selmon->gappx += arg->i;
 	arrange(selmon);
 }
-
-void
-togglemicmute(const Arg *arg)
-{
-	micmute = !micmute;
-
-	char cmd[64];
-	strcpy(cmd, "pactl set-source-mute $(pactl get-default-source) ");
-	
-	strcat(cmd, micmute ? "1" : "0");
-
-	system(cmd);
-}
-
