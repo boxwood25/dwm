@@ -1802,7 +1802,7 @@ tile(Monitor *m)
 		mw = m->ww;
 
 
-        c = tilearea(m, nexttiled(m->clients), MIN(m->nmaster, nt), MIN(m->nsplit, n / 2) - nt + m->nmaster,
+        c = tilearea(m, nexttiled(m->clients), MIN(m->nmaster, nt), MIN(m->nsplit, n / 2) - nt + MIN(m->nmaster, nt),
 			m->wx, m->wy, mw, m->wh, m->mstfact);
 	if (n <= m->nmaster)
 		return;
