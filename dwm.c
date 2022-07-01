@@ -114,7 +114,7 @@ typedef struct {
 
 struct Monitor {
 	char ltsymbol[16];
-	float mfact, sfact, mstfact, sstfact, tstfact;
+	float mfact, sfact, mstfact, sstfact, tstfact, binfact[8];
 	int nmaster;
         int nsplit;
         int symmetry;
@@ -632,6 +632,8 @@ createmon(void)
         m->mstfact = mstfact;
         m->sstfact = sstfact;
         m->tstfact = tstfact;
+        for (int i=0; i < sizeof(binfact)/sizeof(binfact[0]); i++)
+		m->binfact[i] = binfact[i];
 	m->nmaster = nmaster;
         m->nsplit = nsplit;
         m->symmetry = symmetry;
@@ -1835,7 +1837,7 @@ Client
 void
 binarytile(Monitor *m)
 {
-	unsigned int i, x, y, w, h, n;
+	unsigned int i, x, y, w, w2, h, h2, n;
 	Client *c;
         int vert = m->wh > m->ww;
 
@@ -1845,13 +1847,23 @@ binarytile(Monitor *m)
 
 	x = m->wx;
 	y = m->wy;
-	w = m->ww;
-	h = m->wh;
+	w = w2 = m->ww;
+	h = h2 = m->wh;
 	for (i = 0, c = nexttiled(m->clients); i+1 < n; c = nexttiled(c->next), i++) {
-		if (i%2 == vert)
+		w = w2;
+		h = h2;
+
+		if (i%2 == vert) {
 			w /= 2;
-		else
+			if (i < sizeof(m->binfact)/sizeof(m->binfact[0]))
+				w *= m->binfact[i];
+			w2 -= w;
+		}else {
 			h /= 2;
+			if (i < sizeof(m->binfact)/sizeof(m->binfact[0]))
+				h *= m->binfact[i];
+			h2 -= h;
+		}
 
 		gapresize(m, c, x, y, w, h);
 

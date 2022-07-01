@@ -66,6 +66,8 @@ static const float tstfact   = 0.5;  /* factor of the first window in the third 
 static const int nmaster     = 1;    /* number of clients in master area */
 /* number of places where there would be one client, but there are two (horizontally) */
 static const int nsplit      = 0;
+/* relative factors of the first 8 areas in the binary tile layout */
+static const float binfact[] = { 1, 1, 1, 1, 1, 1, 1, 1 };
 static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
 static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
 
