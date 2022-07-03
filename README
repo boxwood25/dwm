@@ -1,6 +1,9 @@
 dwm - dynamic window manager
 ============================
 dwm is an extremely fast, small, and dynamic window manager for X.
+This is my personal build for use with polybar / other bars (without IPC),
+containing more layouts and expanding the default tiling layouts.
+My personalconfiguration is in config.def.h.
 
 
 Requirements
@@ -24,6 +27,8 @@ Running dwm
 Add the following line to your .xinitrc to start dwm using startx:
 
     exec dwm
+
+(It is also possible to start dwm from a display manager.)
 
 In order to connect dwm to a specific display, make sure that
 the DISPLAY environment variable is set correctly, e.g.:
