@@ -2336,7 +2336,7 @@ main(int argc, char *argv[])
 
         /* start polybar */
         if(fork() == 0) {
-            system("~/.config/polybar/launch.sh");
+            system(polybarlaunchscript);
             exit(0);
         }
 

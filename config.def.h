@@ -99,6 +99,9 @@ static void toggleevenness(const Arg *arg);
 static void togglegaps(const Arg *arg);
 static void setgaps(const Arg *arg);
 
+/* script to launch all polybar instances (one per monitor) */
+static const char polybarlaunchscript[] = "~/.config/polybar/launch.sh";
+
 /* bluetooth device to optionally connect to */
 static const char btdevice[] = "00:13:EF:A0:08:DC";
 
