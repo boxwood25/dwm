@@ -1597,7 +1597,7 @@ setbinfact(int vert, float argf)
         /* find out the index of the selected client */
         int i;
         Client *c;
-        for (i = 0, c = nexttiled(selmon->clients); c != selmon->sel; c = nexttiled(c->next), i++);
+        for (i = 0, c = nexttiled(selmon->clients); c && c != selmon->sel; c = nexttiled(c->next), i++);
 
 	if (vert != monvert)
 		i++;
