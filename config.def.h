@@ -217,7 +217,7 @@ static Key keys[] = {
         { Mod4Mask,                     XK_k,      pulseaudioctl,  {.v = "--volume-max 100 up"} },
         { Mod4Mask,                     XK_Down,   pulseaudioctl,  {.v = "down"} },
         { Mod4Mask,                     XK_j,      pulseaudioctl,  {.v = "down"} },
-        { Mod4Mask,                     XK_space,  pulseaudioctl,  {.v = "next-sink"} },
+        { Mod4Mask,                     XK_space,  pulseaudioctl,  {.v = "next-node"} },
         { Mod4Mask,                     XK_m,      pulseaudioctl,  {.v = "togmute"} },
         { Mod4Mask|ShiftMask,           XK_m,      togglemicmute,  {0} },
         { Mod4Mask,                     XK_b,      bluetooth,      {0} },
