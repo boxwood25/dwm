@@ -300,7 +300,7 @@ night(const Arg *arg) {
 void
 nextwallpaper(const Arg *arg) {
 	char cmd[1024];
-	strcpy(cmd, "feh --bg-fill --randomize ");
+	strcpy(cmd, "feh --no-feh --bg-fill --randomize ");
 	system(strcat(cmd, wallpapers));
 }
 
