@@ -8,7 +8,7 @@ static const unsigned int snap      = 20;       /* snap pixel */
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 0;        /* 0 means bottom bar */
 static const char *fonts[]          = { "monospace:size=10" };
-static const char dmenufont[]       = "monospace:size=10";
+static const char dmenufont[]       = "monospace:size=15";
 static const char col_gray1[]       = "#1f1f1f";
 static const char col_gray2[]       = "#282A2E";
 static const char col_gray3[]       = "#bbbbbb";
